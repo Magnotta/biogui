@@ -1,36 +1,9 @@
-#include <Arduino.h>
-
-typedef struct{
-    uint16_t ox;          // origin x coord
-    uint16_t oy;          // origin y coord
-    uint16_t len = 240;   // total length of the slider bar in pixels
-    uint16_t wid = 25;    // width of the slider bar in pixels  
-    uint16_t val;         // current value the slider represents
-    uint16_t valx;        // x coord of where to write the current value
-    uint16_t valy;        // y coord of where to write the current value
-    byte minVal;          // minimum value the slider can represent
-    byte maxVal;          // maximum value the slider can represent
-    uint16_t pos;         // current position of the slider bar in pixels
-    bool redraw;          // has the slider position changed?
-} Slider;
-
-// 
-void sliderInit(Slider& s, uint16_t x, uint16_t y, int minv, int maxv){
-  s.ox = x;
-  s.oy = y;
-
-  s.minVal = minv;
-  s.maxVal = maxv;
-  s.valx = x+150;
-  s.valy = s.oy+s.wid+11;
-  s.val = minv;
-  s.pos = 0;
-  s.redraw = true;
-}
-
 #include <MCUFRIEND_kbv.h>
 #include <TouchScreen.h>
-#include "slider.h"
+#include <gui.hpp>
+
+void redraw();
+void drawWindow();
 
 MCUFRIEND_kbv tft;
 
@@ -81,8 +54,7 @@ void setup(void){
   drawWindow();
 }
 
-void loop()
-{
+void loop(){
   uint16_t xpos, ypos;  //screen coordinates
   tp = ts.getPoint();   //tp.x, tp.y are ADC values
 
