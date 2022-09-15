@@ -19,9 +19,18 @@ TSPoint tp;
 Slider slider1 = Slider(40, 60, 0, 100);
 Slider slider2 = Slider(40, 120, 0, 30);
 Slider slider3 = Slider(40, 180, 5, 15);
+Slider slider4 = Slider(40, 240, 0, 300);
 
+Button btn1 = Button(90, 320);
+
+Timer tmr1 = Timer(110, 380);
+
+bool play = false;
 uint16_t ID;
 uint8_t Orientation = 0;    //PORTRAIT
+unsigned long timer;
+
+void btn1_callback();
 
 void setup(void){
   tft.reset();
@@ -37,10 +46,18 @@ void setup(void){
   slider1.configure("Potencia", "%");
   slider2.configure("Duracao", "min");
   slider3.configure("Distancia", "cm");
+  slider4.configure("Descanso", "seg");
+
+  btn1.configure("Iniciar", btn1_callback);
+
+  tmr1.configure(0);
 
   slider1.draw_init(tft);
   slider2.draw_init(tft);
   slider3.draw_init(tft);
+  slider4.draw_init(tft);
+
+  btn1.draw_init(tft);
 }
 
 void loop(){
@@ -63,19 +80,39 @@ void loop(){
     xpos = map(tp.x, TS_LEFT, TS_RT, 0, tft.width());
     ypos = map(tp.y, TS_TOP, TS_BOT, 0, tft.height());
 
-    // Are we in the slider1 Y area?
-    if(slider1.clicked(xpos, ypos)){
-      slider1.update(xpos, tft);
-    }
+    if(!play){
 
-    // Are we in the slider2 Y area?
-    if(slider2.clicked(xpos, ypos)){
-      slider2.update(xpos, tft);
-    }
+      // Are we in the slider1 area?
+      if(slider1.clicked(xpos, ypos)){
+        slider1.update(xpos, tft);
+      }
 
-    // Are we in the slider3 Y area?
-    if(slider3.clicked(xpos, ypos)){
-      slider3.update(xpos, tft);
+      // Are we in the slider2 area?
+      if(slider2.clicked(xpos, ypos)){
+        slider2.update(xpos, tft);
+      }
+
+      // Are we in the slider3 area?
+      if(slider3.clicked(xpos, ypos)){
+        slider3.update(xpos, tft);
+      }
+
+      // Are we in the slider4 area?
+      if(slider4.clicked(xpos, ypos)){
+        slider4.update(xpos, tft, 10);
+      }
+
+      // Are we in the button1 area?
+      if(btn1.clicked(xpos, ypos)){
+        btn1.update(tft);
+        tmr1.configure(slider2.get_val()*60);
+      }
+    }else{
+      tmr1.draw_init(tft);
     }
   }
+}
+
+void btn1_callback(){
+  play = true;
 }
