@@ -16,21 +16,24 @@ TSPoint tp;
 #define MINPRESSURE 200
 #define MAXPRESSURE 1000
 
-Slider slider1 = Slider(40, 60, 0, 100);
-Slider slider2 = Slider(40, 120, 0, 30);
-Slider slider3 = Slider(40, 180, 5, 15);
-Slider slider4 = Slider(40, 240, 0, 300);
+Slider slider1 = Slider(40, 60);
+Slider slider2 = Slider(40, 120);
+Slider slider3 = Slider(40, 180);
+Slider slider4 = Slider(40, 240);
 
-Button btn1 = Button(90, 320);
+Button btn1 = Button(90, 320);  //Start button
+Button btn2 = Button(btn1);     //Stop button
 
-Timer tmr1 = Timer(110, 380);
+Timer tmr1 = Timer(89, 380);
 
 bool play = false;
+bool jss = true; //Just Switched States, begins as true because startup is a state swtich from off to on
 uint16_t ID;
 uint8_t Orientation = 0;    //PORTRAIT
 unsigned long timer;
 
-void btn1_callback();
+void sw2on();
+void sw2off();
 
 void setup(void){
   tft.reset();
@@ -43,21 +46,18 @@ void setup(void){
 
   delay(1000);
 
-  slider1.configure("Potencia", "%");
-  slider2.configure("Duracao", "min");
-  slider3.configure("Distancia", "cm");
-  slider4.configure("Descanso", "seg");
+  tft.setCursor(51, 465);
+  tft.print("Andre Mariano e Paulo Souza - IF UnB");
 
-  btn1.configure("Iniciar", btn1_callback);
+  slider1.configure(0, 100, "Potencia", "%", 240, 25);
+  slider2.configure(0, 30, "Duracao", "min", 240, 25);
+  slider3.configure(5, 15, "Distancia", "cm", 240, 25);
+  slider4.configure(0, 300, "Descanso", "seg", 240, 25);
 
-  tmr1.configure(0);
+  btn1.configure("Iniciar", sw2on);
+  btn2.configure("Encerrar", sw2off);
 
-  slider1.draw_init(tft);
-  slider2.draw_init(tft);
-  slider3.draw_init(tft);
-  slider4.draw_init(tft);
-
-  btn1.draw_init(tft);
+  tmr1.configure(0, sw2off);
 }
 
 void loop(){
@@ -70,49 +70,74 @@ void loop(){
   
   // we have some minimum pressure we consider 'valid'
   // pressure of 0 means no pressing!
-  if (tp.z > MINPRESSURE && tp.z < MAXPRESSURE) {
-    // most mcufriend have touch (with icons) that extends below the TFT
-    // screens without icons need to reserve a space for "erase"
-    // scale the ADC values from ts.getPoint() to screen values e.g. 0-239
-    //
-    // Calibration is true for PORTRAIT. tp.y is always long dimension 
-    // map to your current pixel orientation
+  if(tp.z > MINPRESSURE && tp.z < MAXPRESSURE){
     xpos = map(tp.x, TS_LEFT, TS_RT, 0, tft.width());
     ypos = map(tp.y, TS_TOP, TS_BOT, 0, tft.height());
+  }
 
-    if(!play){
+  if(!play){
+    if(jss){
+      slider1.draw_init(tft);
+      slider2.draw_init(tft);
+      slider3.draw_init(tft);
+      slider4.draw_init(tft);
+      tmr1.erase(tft);
+      btn2.erase(tft);
+      btn1.draw_init(tft);
+      jss = false;
+    }
 
-      // Are we in the slider1 area?
-      if(slider1.clicked(xpos, ypos)){
-        slider1.update(xpos, tft);
-      }
+    // Are we in the slider1 area?
+    if(slider1.clicked(xpos, ypos)){
+      slider1.update(xpos, tft);
+    }
 
-      // Are we in the slider2 area?
-      if(slider2.clicked(xpos, ypos)){
-        slider2.update(xpos, tft);
-      }
+    // Are we in the slider2 area?
+    if(slider2.clicked(xpos, ypos)){
+      slider2.update(xpos, tft);
+    }
 
-      // Are we in the slider3 area?
-      if(slider3.clicked(xpos, ypos)){
-        slider3.update(xpos, tft);
-      }
+    // Are we in the slider3 area?
+    if(slider3.clicked(xpos, ypos)){
+      slider3.update(xpos, tft);
+    }
 
-      // Are we in the slider4 area?
-      if(slider4.clicked(xpos, ypos)){
-        slider4.update(xpos, tft, 10);
-      }
+    // Are we in the slider4 area?
+    if(slider4.clicked(xpos, ypos)){
+      slider4.update(xpos, tft, 10);
+    }
 
-      // Are we in the button1 area?
-      if(btn1.clicked(xpos, ypos)){
-        btn1.update(tft);
-        tmr1.configure(slider2.get_val()*60);
-      }
-    }else{
+    // Are we in the button1 area?
+    if(btn1.clicked(xpos, ypos)){
+      btn1.update(true);
+      tmr1.configure(slider2.get_val()*60);
+    }
+  }else{
+    if(jss){
       tmr1.draw_init(tft);
+      btn1.erase(tft);
+      btn2.draw_init(tft);
+      jss = false;
+    }
+    
+    if(btn2.clicked(xpos, ypos)){
+      btn2.update(true);
+      tmr1.erase(tft);
+    }
+
+    if(millis() - tmr1.mark > 1000){
+      tmr1.mark = millis();
+      tmr1.update(tft);
     }
   }
 }
 
-void btn1_callback(){
+void sw2on(){
   play = true;
+  jss = true;
+}
+
+void sw2off(){
+  play = false;
+  jss = true;
 }

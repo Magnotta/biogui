@@ -16,16 +16,16 @@
 
 class Slider{
 public:
-    Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv);
+    Slider(uint16_t x, uint16_t y);
     bool clicked(uint16_t xpos, uint16_t ypos); // returns whether (xpos, ypos) is inside slider area
     void update(uint16_t xpos, MCUFRIEND_kbv scr);  // updates the value and redraws a slider
     void update(uint16_t xpos, MCUFRIEND_kbv scr, byte step);   // updates the value in steps and redraws a slider
     void draw_init(MCUFRIEND_kbv scr);  // initial drawing of slider to screen, should only be called once
-    void configure(const char lbl[], const char u[]);   // adds label and dimensional unit to slider
+    void configure(uint16_t minv, uint16_t maxv, const char lbl[], const char u[], uint16_t l, uint16_t w);   // adds label, unit and dimensions to slider
     uint16_t get_val(); //returns current value the slider holds
 private:
-    uint16_t ox;            // origin x coord
-    uint16_t oy;            // origin y coord
+    uint16_t ox;            // origin x coord.
+    uint16_t oy;            // origin y coord.
     uint16_t pos;           // current position of the slider bar in pixels
     uint16_t len = 240;     // total length of the slider bar in pixels
     uint16_t wid = 25;      // width of the slider bar in pixels  
@@ -40,37 +40,46 @@ private:
     char label[13];         // usually ends with an =
     char unit[5];           // unit of measurement e.g. "%", "cm", "W/m2"
 
-    void redraw(MCUFRIEND_kbv scr);
+    void redraw(MCUFRIEND_kbv scr); // used internally for better code organization
 };
 
 class Button{
 public:
-    Button(uint16_t x, uint16_t y);   //
-    bool clicked(uint16_t xpos, uint16_t ypos); //
-    void update(MCUFRIEND_kbv scr);  //
-    void draw_init(MCUFRIEND_kbv scr);  // 
-    void configure(const char lbl[], void (*callback)());   //
-
+    Button(uint16_t x, uint16_t y); 
+    bool clicked(uint16_t xpos, uint16_t ypos); // returns whether (xpos, ypos) is inside slider area
+    void update(bool debounce);  // executes the callback function
+    void draw_init(MCUFRIEND_kbv scr);  // initial drawing of button to screen, should only be called once
+    void configure(const char lbl[], void (*callback)());   // adds label and callback function to button
+    void erase(MCUFRIEND_kbv scr);   // draws a black rectangle over the button
 private:
-    uint16_t ox;
-    uint16_t oy;
-    uint16_t len;
-    uint16_t wid;
+    uint16_t ox;    // origin x coord.
+    uint16_t oy;    // origin y coord.
+    uint16_t len;   // length in pixels along x axis
+    uint16_t wid;   // width in pixels along y axis
     char label[10];
-    void (*cb)();
+    void (*cb)();   // callback function pointer
 };
 
 class Timer{
 public:
     Timer(uint16_t x, uint16_t y);
-    void update(MCUFRIEND_kbv scr);
-    void configure(uint16_t t);
-    void print(char* buf);  //Prints out remaining time into buf
-    void draw_init(MCUFRIEND_kbv scr);
+    void update(MCUFRIEND_kbv scr); // reduces remaining seconds by one and updates display
+    void configure(uint16_t t); // set total countdown duration on the timer
+    void configure(uint16_t t, void (*callback)());
+    void hhmmss(char* buf);  // prints remaining time into buf
+    void draw_init(MCUFRIEND_kbv scr);  // initial drawing of timer to the screen, should only be called once
+    void erase(MCUFRIEND_kbv scr);  // draws a black rectangle over the timer
+
+    unsigned long mark; // for detecting one second intervals with millis()
 private:
-    uint16_t ox;
-    uint16_t oy;
-    uint16_t secs;
+    uint16_t ox;    // origin x coord
+    uint16_t oy;    // origin y coord
+    uint16_t mx;    // minutes x coord
+    uint16_t sx;    // seconds x coord
+    const uint16_t len2dig = 44;   // length of each couple of digits
+    const uint16_t wid = 22;  // width of fontsize 3 digit
+    uint16_t secs;  // countdown duration left in seconds
+    void (*cb)();   // callback for when timer reaches 0 seconds
 };
 
 #endif

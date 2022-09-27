@@ -1,15 +1,9 @@
 #include "gui.hpp"
 #include <MCUFRIEND_kbv.h>
 
-Slider::Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv){
+Slider::Slider(uint16_t x, uint16_t y){
   ox = x;
   oy = y;
-  min_val = minv;
-  max_val = maxv;
-  valx = x+150;
-  valy = oy+wid+11;
-  val = minv;
-  pos = 0;
 }
 
 bool Slider::clicked(uint16_t xpos, uint16_t ypos){
@@ -62,7 +56,16 @@ void Slider::draw_init(MCUFRIEND_kbv scr){
   scr.print(max_val);
 }
 
-void Slider::configure(const char lbl[], const char u[]){
+void Slider::configure(uint16_t minv, uint16_t maxv, const char lbl[], const char u[], uint16_t l, uint16_t w){
+  len = l;
+  wid = w;  
+  min_val = minv;
+  max_val = maxv;
+  valx = ox+150;
+  valy = oy+wid+11;
+  val = minv;
+  pos = 0;
+  
   if(strlen(lbl) < 12)  strcpy(label, lbl);
   else                  strcpy(label, "error");
 
@@ -85,6 +88,10 @@ uint16_t Slider::get_val(){
   return val;
 }
 
+/*##########################################################################
+* Button ###################################################################
+##########################################################################*/
+
 Button::Button(uint16_t x, uint16_t y){
   ox = x;
   oy = y;
@@ -94,9 +101,10 @@ bool Button::clicked(uint16_t xpos, uint16_t ypos){
   return xpos > ox && xpos < ox+len && ypos > oy && ypos < oy+wid;
 }
 
-void Button::update(MCUFRIEND_kbv scr){
+void Button::update(bool debounce){
   (*cb)();
-  delay(150);
+  if(debounce)
+    delay(150); // basic debouncing delay
 }
 
 void Button::configure(const char lbl[], void (*callback)()){
@@ -118,30 +126,76 @@ void Button::draw_init(MCUFRIEND_kbv scr){
   scr.print(label);
 }
 
+void Button::erase(MCUFRIEND_kbv scr){
+  scr.fillRect(ox-1, oy-1, len+2, wid+2, BLACK);
+}
+
+/*##########################################################################
+* Timer ####################################################################
+##########################################################################*/
+
 Timer::Timer(uint16_t x, uint16_t y){
   ox = x;
   oy = y;
+}
+
+void Timer::update(MCUFRIEND_kbv scr){
+  if(secs)  secs--;
+  else{
+    (*cb)();
+    return;
+  }
+
+  scr.fillRect(ox, oy, len2dig, wid, BLACK);
+  scr.fillRect(mx, oy, len2dig, wid, BLACK);
+  scr.fillRect(sx, oy, len2dig, wid, BLACK);
+
+  scr.setCursor(ox, oy);
+  scr.setTextSize(3);
+  scr.setTextColor(RED);
+  char aux[10];
+  hhmmss(aux);
+  scr.print(aux);
 }
 
 void Timer::configure(uint16_t t){
   secs = t;
 }
 
-void Timer::print(char* buf){
+void Timer::configure(uint16_t t, void (*callback)()){
+  secs = t;
+  cb = callback;
+
+  mx = ox + 50;
+  sx = mx + 50;
+}
+
+void Timer::hhmmss(char* buf){
   uint16_t remainder = secs;
   byte seconds = remainder % 60;
   remainder /= 60;
   byte minutes = remainder % 60;
   remainder /= 60;
   byte hours = remainder % 60;
-  sprintf(buf, "%d:%d:%d", hours, minutes, seconds);
+
+  if(minutes < 10){
+    if(seconds < 10)  sprintf(buf, "0%d:0%d:0%d", hours, minutes, seconds);
+    else              sprintf(buf, "0%d:0%d:%d", hours, minutes, seconds);
+  }else{
+    if(seconds < 10)  sprintf(buf, "0%d:%d:0%d", hours, minutes, seconds);
+    else              sprintf(buf, "0%d:%d:%d", hours, minutes, seconds);
+  }
 }
 
 void Timer::draw_init(MCUFRIEND_kbv scr){
   scr.setCursor(ox, oy);
   scr.setTextSize(3);
   scr.setTextColor(RED);
-  char buffer[10];
-  print(buffer);
-  scr.print(buffer);
+  char aux[10];
+  hhmmss(aux);
+  scr.print(aux);
+}
+
+void Timer::erase(MCUFRIEND_kbv scr){
+  scr.fillRect(ox, oy, 160, wid, BLACK);
 }
