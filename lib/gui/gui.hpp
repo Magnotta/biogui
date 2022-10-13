@@ -27,8 +27,8 @@ private:
     uint16_t ox;            // origin x coord.
     uint16_t oy;            // origin y coord.
     uint16_t pos;           // current position of the slider bar in pixels
-    uint16_t len = 240;     // total length of the slider bar in pixels
-    uint16_t wid = 25;      // width of the slider bar in pixels  
+    uint16_t len;     // total length of the slider bar in pixels
+    uint16_t wid;      // width of the slider bar in pixels  
     uint16_t val;           // current value the slider represents
     uint16_t valx;          // x coord of where to write the current value
     uint16_t valy;          // y coord of where to write the current value
@@ -80,6 +80,25 @@ private:
     const uint16_t wid = 22;  // width of fontsize 3 digit
     uint16_t secs;  // countdown duration left in seconds
     void (*cb)();   // callback for when timer reaches 0 seconds
+
+    void redraw(MCUFRIEND_kbv scr);
+};
+
+struct widget_t{
+    void* widget;
+    void* next = nullptr;
+};
+
+class Screen{
+public:
+    Screen();
+    void add_widget(Timer t);
+    void add_widget(Button b);
+    void add_widget(Slider s);
+
+    widget_t* WLH;  // widget list head pointer
+private:
+
 };
 
 #endif

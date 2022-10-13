@@ -140,18 +140,25 @@ Timer::Timer(uint16_t x, uint16_t y){
 }
 
 void Timer::update(MCUFRIEND_kbv scr){
-  if(secs)  secs--;
-  else{
-    (*cb)();
-    return;
-  }
+  if(millis() - mark > 1000){
+    mark = millis();
+    if(secs)  secs--; 
+    else{
+      (*cb)();
+      return;
+    }
 
+    redraw(scr);
+  }
+}
+
+void Timer::redraw(MCUFRIEND_kbv scr){
   scr.fillRect(ox, oy, len2dig, wid, BLACK);
   scr.fillRect(mx, oy, len2dig, wid, BLACK);
   scr.fillRect(sx, oy, len2dig, wid, BLACK);
 
   scr.setCursor(ox, oy);
-  scr.setTextSize(3);
+  scr.setTextSize(4);
   scr.setTextColor(RED);
   char aux[10];
   hhmmss(aux);
@@ -189,7 +196,7 @@ void Timer::hhmmss(char* buf){
 
 void Timer::draw_init(MCUFRIEND_kbv scr){
   scr.setCursor(ox, oy);
-  scr.setTextSize(3);
+  scr.setTextSize(4);
   scr.setTextColor(RED);
   char aux[10];
   hhmmss(aux);
