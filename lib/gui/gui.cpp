@@ -1,15 +1,25 @@
 #include "gui.hpp"
 #include <MCUFRIEND_kbv.h>
 
+/// @brief Initialize a slider
+/// @param x origin x coordinate
+/// @param y origin y coordinate
 Slider::Slider(uint16_t x, uint16_t y){
   ox = x;
   oy = y;
 }
 
+/// @brief Check wheter a click is inside slider area
+/// @param xpos the x coordinate of the click
+/// @param ypos the y coordinate of the click
+/// @return true or false
 bool Slider::clicked(uint16_t xpos, uint16_t ypos){
   return xpos > ox-5 && xpos < ox+len+5 && ypos > oy && ypos < oy+wid;
 }
 
+/// @brief Update slider value and redraw it
+/// @param xpos the x coordinate of the click
+/// @param scr display screen
 void Slider::update(uint16_t xpos, MCUFRIEND_kbv scr){
   if(xpos > ox-5 && xpos < ox)              pos = 0;
   else if(xpos >= ox && xpos <= ox+len)     pos = xpos - ox;
@@ -20,6 +30,10 @@ void Slider::update(uint16_t xpos, MCUFRIEND_kbv scr){
   redraw(scr);
 }
 
+/// @brief Update slider value in steps and redraw it
+/// @param xpos the x coordinate of the click
+/// @param scr display screen
+/// @param step size of the update step
 void Slider::update(uint16_t xpos, MCUFRIEND_kbv scr, byte step){
   if(xpos > ox-5 && xpos < ox)              pos = 0;
   else if(xpos >= ox && xpos <= ox+len)     pos = xpos - ox;
@@ -42,6 +56,8 @@ void Slider::redraw(MCUFRIEND_kbv scr){
   scr.print(unit);
 }
 
+/// @brief Draw slider on the display. Calling more than once is redundant
+/// @param scr display screen
 void Slider::draw_init(MCUFRIEND_kbv scr){  
   scr.setTextSize(2);
   scr.drawRect(ox-3, oy-3, len+6, wid+6, WHITE);
@@ -56,6 +72,13 @@ void Slider::draw_init(MCUFRIEND_kbv scr){
   scr.print(max_val);
 }
 
+/// @brief Fill in slider info
+/// @param minv minimum value the
+/// @param maxv maximum value
+/// @param lbl slider label. Max length = 11 characters
+/// @param u the unit of the value. Max length = 3 characters
+/// @param l total slider bar length in pixels
+/// @param w slider bar width in pixels
 void Slider::configure(uint16_t minv, uint16_t maxv, const char lbl[], const char u[], uint16_t l, uint16_t w){
   len = l;
   wid = w;  
@@ -92,21 +115,33 @@ uint16_t Slider::get_val(){
 * Button ###################################################################
 ##########################################################################*/
 
+/// @brief Initialize a button
+/// @param x origin x coordinate
+/// @param y origin y coordinate
 Button::Button(uint16_t x, uint16_t y){
   ox = x;
   oy = y;
 }
 
+/// @brief Check wheter a click is inside button area
+/// @param xpos the x coordinate of the click
+/// @param ypos the y coordinate of the click
+/// @return true or false
 bool Button::clicked(uint16_t xpos, uint16_t ypos){
   return xpos > ox && xpos < ox+len && ypos > oy && ypos < oy+wid;
 }
 
+/// @brief Run the callback function
+/// @param debounce if set to true, delay 250 ms after running the callback
 void Button::update(bool debounce){
   (*cb)();
   if(debounce)
-    delay(150); // basic debouncing delay
+    delay(250); // basic debouncing delay
 }
 
+/// @brief Fill in button info
+/// @param lbl button text. Max length = 11 characters
+/// @param callback pointer to callback function. it will be called when the button is clicked.
 void Button::configure(const char lbl[], void (*callback)()){
   if(strlen(lbl) < 12)  strcpy(label, lbl);
   else                  strcpy(label, "error");
@@ -117,6 +152,8 @@ void Button::configure(const char lbl[], void (*callback)()){
   cb = callback;
 }
 
+/// @brief Draw button on the display. Calling more than once is redundant
+/// @param scr display screen
 void Button::draw_init(MCUFRIEND_kbv scr){
   scr.drawRect(ox-1, oy-1, len+2, wid+2, WHITE);
   scr.drawRect(ox, oy, len, wid, WHITE);
@@ -126,6 +163,7 @@ void Button::draw_init(MCUFRIEND_kbv scr){
   scr.print(label);
 }
 
+/// @brief Erase button from the display
 void Button::erase(MCUFRIEND_kbv scr){
   scr.fillRect(ox-1, oy-1, len+2, wid+2, BLACK);
 }
@@ -134,11 +172,16 @@ void Button::erase(MCUFRIEND_kbv scr){
 * Timer ####################################################################
 ##########################################################################*/
 
+/// @brief Initialize a timer
+/// @param x origin x coordinate
+/// @param y origin y coordinate
 Timer::Timer(uint16_t x, uint16_t y){
   ox = x;
   oy = y;
 }
 
+/// @brief Decrease timer seconds and update the display. When zero is reached, run the callback function
+/// @param scr display screen
 void Timer::update(MCUFRIEND_kbv scr){
   if(millis() - mark > 1000){
     mark = millis();
@@ -165,6 +208,8 @@ void Timer::redraw(MCUFRIEND_kbv scr){
   scr.print(aux);
 }
 
+/// @brief Set timer time span
+/// @param t Time span in seconds
 void Timer::configure(uint16_t t){
   secs = t;
 }
@@ -177,6 +222,8 @@ void Timer::configure(uint16_t t, void (*callback)()){
   sx = mx + 50;
 }
 
+/// @brief Get formatted representation of the time left in the timer
+/// @param buf Buffer where the string will be printed.
 void Timer::hhmmss(char* buf){
   uint16_t remainder = secs;
   byte seconds = remainder % 60;
@@ -194,6 +241,8 @@ void Timer::hhmmss(char* buf){
   }
 }
 
+/// @brief Draw timer to display. Calling more than once is redundant
+/// @param scr Display screen
 void Timer::draw_init(MCUFRIEND_kbv scr){
   scr.setCursor(ox, oy);
   scr.setTextSize(4);
@@ -203,6 +252,8 @@ void Timer::draw_init(MCUFRIEND_kbv scr){
   scr.print(aux);
 }
 
+/// @brief Erase timer from screen
+/// @param scr Display screen
 void Timer::erase(MCUFRIEND_kbv scr){
   scr.fillRect(ox, oy, 160, wid, BLACK);
 }
