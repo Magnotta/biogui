@@ -1,6 +1,7 @@
 #include <MCUFRIEND_kbv.h>
 #include <TouchScreen.h>
-#include <gui.hpp>
+#include "widget.hpp"
+#include "nav.hpp"
 
 MCUFRIEND_kbv tft;
 
@@ -16,16 +17,27 @@ TSPoint tp;
 #define MINPRESSURE 200
 #define MAXPRESSURE 1000
 
-Slider slider1 = Slider(40, 60);
-Slider slider2 = Slider(40, 120);
-Slider slider3 = Slider(40, 180);
-Slider slider4 = Slider(40, 240);
-Slider slider5 = Slider(40, 300);
+Slider slider1 = Slider(40, 60, 240, 25, 0, 100, 1, "Potencia", "%");
+Slider slider2 = Slider(40, 120, 240, 25, 0, 30, 1, "Tempo on", "min");
+Slider slider3 = Slider(40, 180, 240, 25, 0, 300, 10, "Tempo off", "seg");
+Slider slider4 = Slider(40, 240, 240, 25, 1, 10, 1, "N Ciclos", "");
+Slider slider5 = Slider(40, 300, 240, 25, 5, 15, 1, "Distancia", "cm");
 
-Button btn1 = Button(90, 380);  //Start button
-Button btn2 = Button(btn1);     //Stop button
+void sw2on();
+void sw2off();
 
-Timer tmr1 = Timer(89, 440);
+Button btn1 = Button(90, 380, "Iniciar", sw2on);  //Start button
+//Button btn2 = Button(90, 380, "Encerrar", sw2off);     //Stop button
+
+//Timer tmr1 = Timer(89, 440, 0, sw2off);
+
+//void play_entry();
+//void play_exit();
+
+void config_entry();
+void config_exit();
+
+Screen config = Screen(&tft, config_entry, config_exit);
 
 bool play = false;
 bool jss = true; //Just Switched States, begins as true because startup is a state swtich from off to on
@@ -35,7 +47,6 @@ uint8_t cycles;
 
 void sw2on();
 void sw2off();
-void timer_callback();
 
 void setup(void){
   tft.reset();
@@ -51,26 +62,18 @@ void setup(void){
   tft.setCursor(51, 465);
   tft.print("Andre Mariano e Paulo Souza - IF UnB");
 
-  slider1.configure(0, 100, "Potencia", "%", 240, 25);
-  slider2.configure(0, 30, "Tempo on", "min", 240, 25);
-  slider3.configure(0, 300, "Tempo off", "seg", 240, 25);
-  slider4.configure(1, 10, "N Ciclos", "", 240, 25);
-  slider5.configure(5, 15, "Distancia", "cm", 240, 25);
+  config.add_widget(&slider1);
+  config.add_widget(&slider2);
+  config.add_widget(&slider3);
+  config.add_widget(&slider4);
+  config.add_widget(&slider5);
+  config.add_widget(&btn1);
 
-  btn1.configure("Iniciar", sw2on);
-  btn2.configure("Encerrar", sw2off);
-
-  tmr1.configure(0, sw2off);
-
-  slider1.draw_init(tft);
-  slider2.draw_init(tft);
-  slider3.draw_init(tft);
-  slider4.draw_init(tft);
-  slider5.draw_init(tft);
+  config.entry();
 }
 
 void loop(){
-  uint16_t xpos, ypos;  //screen coordinates
+  uint16_t xpos = 0, ypos = 0;  //screen coordinates
   tp = ts.getPoint();   //tp.x, tp.y are ADC values
 
   // if sharing pins, you'll need to fix the directions of the touchscreen pins
@@ -84,52 +87,46 @@ void loop(){
     ypos = map(tp.y, TS_TOP, TS_BOT, 0, tft.height());
   }
 
-  if(!play){  // CONFIG STATE?
-    if(jss){  // JUST SWITCHED STATES?
-      tmr1.erase(tft);
-      btn2.erase(tft);
-      btn1.draw_init(tft);
-      jss = false;
-    }
+  config.update(xpos, ypos);
+}
 
-    // Are we in the slider1 area?
-    if(slider1.clicked(xpos, ypos)){
-      slider1.update(xpos, tft);
-    }
+void sw2on(){
+  //play = true;
+  jss = true;
+}
 
-    // Are we in the slider2 area?
-    if(slider2.clicked(xpos, ypos)){
-      slider2.update(xpos, tft);
-    }
+void sw2off(){
+  //play = false;
+  jss = true;
+}
 
-    // Are we in the slider3 area?
-    if(slider3.clicked(xpos, ypos)){
-      slider3.update(xpos, tft, 10);
-    }
+void play_entry(){
 
-    // Are we in the slider4 area?
-    if(slider4.clicked(xpos, ypos)){
-      slider4.update(xpos, tft);
-    }
+}
 
-    // Are we in the slider5 area?
-    if(slider5.clicked(xpos, ypos)){
-      slider5.update(xpos, tft);
-    }
+void play_exit(){
 
-    // Are we in the button1 area?
-    if(btn1.clicked(xpos, ypos)){
-      btn1.update(true);
-      tmr1.configure(slider2.get_val()*60);
-    }
-  }else{  // PLAY STATE?
-    if(jss){  // JUST SWITCHED STATES?
-      btn1.erase(tft);
-      tmr1.draw_init(tft);
-      btn2.draw_init(tft);
-      jss = false;
-    }
-    
+}
+
+/*void play_update(int xpos, int ypos){
+  if(btn2.clicked(xpos, ypos)){
+    btn2.update(true);
+    tmr1.erase(tft);
+  }
+}*/
+
+void config_entry(){
+  slider1.draw(&tft);
+  slider2.draw(&tft);
+  slider3.draw(&tft);
+  slider4.draw(&tft);
+  slider5.draw(&tft);
+
+  btn1.draw(&tft);
+}
+
+void config_exit(){}
+/************* SCREEN PLAY UPDATE ***************
     if(btn2.clicked(xpos, ypos)){
       btn2.update(true);
       tmr1.erase(tft);
@@ -139,19 +136,22 @@ void loop(){
       tmr1.mark = millis();
       tmr1.update(tft);
     }
+*/
+
+/********** SCREEN SWITCHING ****************
+  if(!play){  // CONFIG STATE?
+    if(jss){  // JUST SWITCHED STATES?
+      tmr1.erase(tft);
+      btn2.erase(tft);
+      btn1.draw_init(tft);
+      jss = false;
+    }
+  }else{  // PLAY STATE?
+    if(jss){  // JUST SWITCHED STATES?
+      btn1.erase(tft);
+      tmr1.draw_init(tft);
+      btn2.draw_init(tft);
+      jss = false;
+    }
   }
-}
-
-void sw2on(){
-  play = true;
-  jss = true;
-}
-
-void sw2off(){
-  play = false;
-  jss = true;
-}
-
-void timer_callback(){
-  
-}
+*/
