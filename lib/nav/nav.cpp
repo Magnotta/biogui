@@ -1,33 +1,67 @@
-#include <MCUFRIEND_kbv.h>
 #include "nav.hpp"
-#include "widget.hpp"
 
-/// @brief Constructor for Screen class
+/// @brief 
 /// @param s Display screen
 /// @param _entry The function to be called when this screen is loaded
 /// @param _exit The function to be called when this screen is unloaded
 /// @param _update The function to be called in loop while this screen is active
-Screen::Screen(MCUFRIEND_kbv *s, void (*_entry)(), void (*_exit)()){
+Screen::Screen(MCUFRIEND_kbv *s){
 	scr = s;
-	entry = _entry;
-	exit = _exit;
-	head[0] = nullptr;
-	widget_i = 0;
+	widget_count = 0;
 }
 
+/// @brief Cycle through all widgets added to a screen and update them
+/// @param x X coordinate of screen click
+/// @param y Y coordinate of screen click
 void Screen::update(uint16_t x, uint16_t y){
-	for(byte i = 0; i < widget_i; i++){
-		if(head[i]->clicked(x, y))
-			head[i]->update(scr);
+	for(uint8_t i = 0; i < widget_count; i++){
+		if(widgets[i]->clicked(x, y))
+			widgets[i]->update(scr);
 	}
 }
 
+/// @brief Add a widget to a screen, so that it is automatically drawn and updated
+/// @param x Should be the memory address os a global Widget object
 void Screen::add_widget(Widget *x){
-	head[widget_i] = x;
-	widget_i++;
-	head[widget_i] = nullptr;
+	widgets[widget_count] = x;
+	widget_count++;
 }
 
-Mngr::Mngr(){
-	current = nullptr;
+void Screen::entry(){
+	for(uint8_t i=0; i<widget_count; i++){
+		widgets[i]->draw(scr);
+	}
+}
+
+void Screen::exit(){
+	for(uint8_t i=0; i<widget_count; i++){
+		widgets[i]->erase(scr);
+	}
+}
+
+Router::Router(Screen *_home, Screen *cur){
+	home = _home;
+	current = cur;
+}
+
+/// @brief Sets home screen, to be accessed by the home button
+/// @param _home Pointer to Screen object
+void Router::set_home(Screen *_home){
+	home = _home;
+}
+
+/// @brief Erase current screen, draw another
+/// @param next Pointer to screen object
+void Router::switch_screen(Screen *next){
+	current->exit();
+	current = next;
+	current->entry();
+}
+
+void Router::loop(uint16_t x, uint16_t y){
+	current->update(x, y);
+}
+
+void Router::enter(){
+	home->entry();
 }

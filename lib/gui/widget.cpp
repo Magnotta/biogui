@@ -1,4 +1,3 @@
-#include <MCUFRIEND_kbv.h>
 #include "widget.hpp"
 
 /*##########################################################################
@@ -23,6 +22,10 @@ bool Widget::clicked(uint16_t _x, uint16_t _y){
   return _x > ox && _x < ox+len && _y > oy && _y < oy+wid;
 }
 
+void Widget::erase(MCUFRIEND_kbv *_scr){
+  _scr->fillRect(ox, oy, len, wid, BLACK);
+}
+
 /*##########################################################################
 * Slider ###################################################################
 ##########################################################################*/
@@ -37,16 +40,17 @@ bool Widget::clicked(uint16_t _x, uint16_t _y){
 /// @param _step Step size for the slider bar
 /// @param lbl Label string
 /// @param u Unit string, for example "cm" or "W"
-Slider::Slider(uint16_t x, uint16_t y, uint16_t l, uint16_t w, uint16_t minv, uint16_t maxv, byte _step, const char lbl[], const char u[]){
+Slider::Slider(uint16_t x, uint16_t y, uint16_t l, uint16_t w, uint16_t minv, uint16_t maxv, uint8_t _step, const char lbl[], const char u[]){
   ox = x;
   oy = y;
   len = l;
-  wid = w;
+  bar_wid = w;
+  wid = bar_wid+29;
   min_val = minv;
   max_val = maxv;
   step = _step;
   valx = ox+150;
-  valy = oy+wid+11;
+  valy = oy+bar_wid+11;
   val = minv;
   pos = 0;
 
@@ -57,7 +61,7 @@ Slider::Slider(uint16_t x, uint16_t y, uint16_t l, uint16_t w, uint16_t minv, ui
   else              strcpy(unit, "err");
 
   strcat(label, "=");
-  byte len = strlen(label);
+  uint8_t len = strlen(label);
   label_offset = 118 - len*10;
 
   if(min_val < 10)  minv_offset = 8;
@@ -73,7 +77,7 @@ Slider::Slider(uint16_t x, uint16_t y, uint16_t l, uint16_t w, uint16_t minv, ui
 /// @param ypos The y coordinate of the click
 /// @return True or false
 bool Slider::clicked(uint16_t xpos, uint16_t ypos){
-  bool aux = xpos > ox-3 && xpos < ox+len+3 && ypos > oy && ypos < oy+wid;
+  bool aux = xpos > ox-3 && xpos < ox+len+3 && ypos > oy && ypos < oy+bar_wid;
   if(aux) cx = xpos;
   return aux;
 }
@@ -94,8 +98,8 @@ void Slider::update(MCUFRIEND_kbv *scr){
 // Used internally for better code organization
 void Slider::redraw(MCUFRIEND_kbv *scr){
   scr->setTextSize(2);
-  scr->fillRect(ox, oy, pos, wid, WHITE);
-  scr->fillRect(ox+pos, oy, len-pos, wid, BLACK);
+  scr->fillRect(ox, oy, pos, bar_wid, WHITE);
+  scr->fillRect(ox+pos, oy, len-pos, bar_wid, BLACK);
   
   scr->fillRect(valx, valy, ox+len-maxv_offset-valx, 16, BLACK);
   scr->setCursor(valx, valy);
@@ -107,7 +111,7 @@ void Slider::redraw(MCUFRIEND_kbv *scr){
 /// @param scr display screen
 void Slider::draw(MCUFRIEND_kbv *scr){  
   scr->setTextSize(2);
-  scr->drawRect(ox-3, oy-3, len+6, wid+6, WHITE);
+  scr->drawRect(ox-3, oy-3, len+6, bar_wid+6, WHITE);
   scr->setCursor(ox-minv_offset, valy);  
   scr->print(min_val);
   scr->setCursor(ox+label_offset, valy);
@@ -117,6 +121,12 @@ void Slider::draw(MCUFRIEND_kbv *scr){
   scr->print(unit);
   scr->setCursor(ox+len-maxv_offset, valy);
   scr->print(max_val);
+}
+
+void Slider::erase(MCUFRIEND_kbv *scr){
+  scr->drawRect(ox-3, oy-3, len+6, bar_wid+6, BLACK);
+  scr->fillRect(ox, oy, len, bar_wid, BLACK);
+  scr->fillRect(ox-10, oy+bar_wid+11, len+30, 16, BLACK);
 }
 
 uint16_t Slider::get_val(){
@@ -155,18 +165,12 @@ void Button::update(MCUFRIEND_kbv *scr){
 /// @brief Draw button on the display. Calling more than once is redundant
 /// @param scr Display screen
 void Button::draw(MCUFRIEND_kbv *scr){
-  scr->drawRect(ox-1, oy-1, len+2, wid+2, WHITE);
   scr->drawRect(ox, oy, len, wid, WHITE);
   scr->drawRect(ox+1, oy+1, len-2, wid-2, WHITE);
+  scr->drawRect(ox+2, oy+2, len-4, wid-4, WHITE);
   scr->setCursor(ox+5, oy+5);
   scr->setTextSize(3);
   scr->print(label);
-}
-
-/// @brief Erase button from the display
-/// @param scr Display screen
-void Button::erase(MCUFRIEND_kbv *scr){
-  scr->fillRect(ox-1, oy-1, len+2, wid+2, BLACK);
 }
 
 /*##########################################################################
@@ -187,9 +191,12 @@ Label::Label(char txt[]){
 Timer::Timer(uint16_t x, uint16_t y, uint16_t t, void (*_callback)()){
   ox = x;
   oy = y;
+  wid = 27;
+  len = 188;
   mx = ox + 50;
   sx = mx + 50;
 
+  len2dig = 44;
   secs = t;
 
   callback = _callback;
@@ -214,6 +221,7 @@ void Timer::update(MCUFRIEND_kbv *scr){
   }
 }
 
+// Used internally for better code organization
 void Timer::redraw(MCUFRIEND_kbv *scr){
   scr->fillRect(ox, oy, len2dig, wid, BLACK);
   scr->fillRect(mx, oy, len2dig, wid, BLACK);
@@ -226,15 +234,15 @@ void Timer::redraw(MCUFRIEND_kbv *scr){
   scr->print(aux);
 }
 
-/// @brief Get formatted representation of the time left in the timer
+/// @brief Get formatted representation (hh:mm:ss) of the time left in the timer
 /// @param buf Buffer where the string will be printed.
 void Timer::hhmmss(char* buf){
   uint16_t remainder = secs;
-  byte seconds = remainder % 60;
+  uint8_t seconds = remainder % 60;
   remainder /= 60;
-  byte minutes = remainder % 60;
+  uint8_t minutes = remainder % 60;
   remainder /= 60;
-  byte hours = remainder % 60;
+  uint8_t hours = remainder % 60;
 
   if(minutes < 10){
     if(seconds < 10)  sprintf(buf, "0%d:0%d:0%d", hours, minutes, seconds);
@@ -254,10 +262,5 @@ void Timer::draw(MCUFRIEND_kbv *scr){
   char aux[10];
   hhmmss(aux);
   scr->print(aux);
-}
-
-/// @brief Erase timer from screen
-/// @param scr Display screen
-void Timer::erase(MCUFRIEND_kbv *scr){
-  scr->fillRect(ox, oy, 160, wid, BLACK);
+  scr->setTextColor(WHITE);
 }
