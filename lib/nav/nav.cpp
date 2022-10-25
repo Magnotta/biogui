@@ -29,7 +29,8 @@ void Screen::add_widget(Widget *x){
 
 void Screen::entry(){
 	for(uint8_t i=0; i<widget_count; i++){
-		widgets[i]->draw(scr);
+		if(widgets[i]->is_active())
+			widgets[i]->draw(scr);		
 	}
 }
 
@@ -42,6 +43,8 @@ void Screen::exit(){
 Router::Router(Screen *_home, Screen *cur){
 	home = _home;
 	current = cur;
+	next = nullptr;
+	jump_set = false;
 }
 
 /// @brief Sets home screen, to be accessed by the home button
@@ -52,16 +55,31 @@ void Router::set_home(Screen *_home){
 
 /// @brief Erase current screen, draw another
 /// @param next Pointer to screen object
-void Router::switch_screen(Screen *next){
+void Router::switch_screen(Screen *_next){
+	next = _next;
+	jump_set = true;
+}
+
+void Router::jump(){
 	current->exit();
 	current = next;
 	current->entry();
+	jump_set = false;
 }
 
+/// @brief Updates all widgets linked to This screen
+/// @param x X coordinate of screen click
+/// @param y Y coordinate of screen click
+/// @note To be called inside arduino loop()
 void Router::loop(uint16_t x, uint16_t y){
 	current->update(x, y);
+	if(jump_set){
+		jump();
+	}
 }
 
+/// @brief Draws home screen on the display
+/// @note To be called inside arduino setup()
 void Router::enter(){
 	home->entry();
 }

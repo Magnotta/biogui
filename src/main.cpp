@@ -21,7 +21,6 @@ TSPoint tp;
 #define MAXPRESSURE 1000
 
 uint16_t ID;
-uint8_t Orientation = 0;    //PORTRAIT
 
 void setup(void){
   tft.reset();
@@ -29,7 +28,7 @@ void setup(void){
   tft.begin(ID);
   Serial.begin(115200);
   delay(10);
-  tft.setRotation(0);
+  tft.setRotation(0);   // Portrait orientation
   tft.fillScreen(BLACK);
 
   delay(1000);

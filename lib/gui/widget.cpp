@@ -12,6 +12,8 @@ Widget::Widget(uint16_t _ox = 0, uint16_t _oy = 0, uint16_t _len = 0, uint16_t _
   oy = _oy;
   len = _len;
   wid = _wid;
+  active = true;
+  clicking = false;
 }
 
 /// @brief Check whether the widget was clicked  on
@@ -19,11 +21,23 @@ Widget::Widget(uint16_t _ox = 0, uint16_t _oy = 0, uint16_t _len = 0, uint16_t _
 /// @param _y the y coordinate of the click
 /// @return True if click is inside widget area, false otherwise
 bool Widget::clicked(uint16_t _x, uint16_t _y){
-  return _x > ox && _x < ox+len && _y > oy && _y < oy+wid;
+  return active && _x > ox && _x < ox+len && _y > oy && _y < oy+wid;
 }
 
 void Widget::erase(MCUFRIEND_kbv *_scr){
   _scr->fillRect(ox, oy, len, wid, BLACK);
+}
+
+void Widget::activate(){
+  active = true;
+}
+
+void Widget::deactivate(){
+  active = false;
+}
+
+bool Widget::is_active(){
+  return active;
 }
 
 /*##########################################################################
@@ -142,7 +156,7 @@ uint16_t Slider::get_val(){
 /// @param y Origin (top left corner) y coordinate
 /// @param lbl Label to be written inside the button
 /// @param _callback Function pointer to callback function
-Button::Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)()){
+Button::Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)(), uint16_t delay){
   ox = x;
   oy = y;
 
@@ -153,13 +167,23 @@ Button::Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)()){
   wid = 31;
 
   callback = _callback;
+
+  debounce = delay;
+}
+
+bool Button::clicked(uint16_t _xpos, uint16_t _ypos){
+  clicking = active && _xpos > ox && _xpos < ox+len && _ypos > oy && _ypos < oy+wid;
+  return clicking;
 }
 
 /// @brief Run the callback function
-/// @param debounce if set to true, delay 250 ms after running the callback
+/// @param scr Display screen
 void Button::update(MCUFRIEND_kbv *scr){
-  (*callback)();
-  delay(250); // basic debouncing delay
+  if(millis() - mark > 250){
+    mark = millis();
+    (*callback)();
+    redraw(scr);
+  }
 }
 
 /// @brief Draw button on the display. Calling more than once is redundant
@@ -171,6 +195,24 @@ void Button::draw(MCUFRIEND_kbv *scr){
   scr->setCursor(ox+5, oy+5);
   scr->setTextSize(3);
   scr->print(label);
+}
+
+void Button::redraw(MCUFRIEND_kbv *scr){
+  scr->fillRect(ox, oy, len, wid, BLACK);
+  if(clicking){
+    scr->drawRect(ox, oy, len, wid, RED);
+    scr->drawRect(ox+1, oy+1, len-2, wid-2, RED);
+    scr->drawRect(ox+2, oy+2, len-4, wid-4, RED);
+    scr->setTextColor(RED);
+  }else{
+    scr->drawRect(ox, oy, len, wid, WHITE);
+    scr->drawRect(ox+1, oy+1, len-2, wid-2, WHITE);
+    scr->drawRect(ox+2, oy+2, len-4, wid-4, WHITE);
+  }
+  scr->setCursor(ox+5, oy+5);
+  scr->setTextSize(3);
+  scr->print(label);
+  scr->setTextColor(WHITE);
 }
 
 /*##########################################################################
@@ -191,19 +233,18 @@ Label::Label(char txt[]){
 Timer::Timer(uint16_t x, uint16_t y, uint16_t t, void (*_callback)()){
   ox = x;
   oy = y;
-  wid = 27;
+  wid = 28;
   len = 188;
-  mx = ox + 50;
-  sx = mx + 50;
-
   len2dig = 44;
+  mx = ox + 72;
+  sx = mx + 72;
   secs = t;
 
   callback = _callback;
 }
 
 bool Timer::clicked(uint16_t x, uint16_t y){
-  return true;
+  return active;
 }
 
 /// @brief Decrease timer seconds and update the display. When zero is reached, run the callback function
@@ -212,7 +253,7 @@ void Timer::update(MCUFRIEND_kbv *scr){
   if(millis() - mark > 1000){
     mark = millis();
     if(secs)  secs--; 
-    else{
+    if(!secs){
       (*callback)();
       return;
     }
@@ -232,6 +273,7 @@ void Timer::redraw(MCUFRIEND_kbv *scr){
   char aux[10];
   hhmmss(aux);
   scr->print(aux);
+  scr->setTextColor(WHITE);
 }
 
 /// @brief Get formatted representation (hh:mm:ss) of the time left in the timer
@@ -263,4 +305,9 @@ void Timer::draw(MCUFRIEND_kbv *scr){
   hhmmss(aux);
   scr->print(aux);
   scr->setTextColor(WHITE);
+}
+
+void Timer::arming_event(uint16_t t){
+  secs = t;
+  mark = millis();
 }

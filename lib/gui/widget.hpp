@@ -21,11 +21,16 @@ public:
     virtual void update(MCUFRIEND_kbv *_scr);
     virtual void draw(MCUFRIEND_kbv *_scr);
     virtual void erase(MCUFRIEND_kbv *_scr);
+    virtual void activate();
+    virtual void deactivate();
+    virtual bool is_active();
 protected:
     uint16_t ox;    // origin x coordinate
     uint16_t oy;    // origin y coordinate
     uint16_t len;   // total length of the slider bar in pixels
     uint16_t wid;   // width of the slider bar in pixels
+    bool active;
+    bool clicking;
 };
 
 class Slider : public Widget{
@@ -58,12 +63,18 @@ private:
 
 class Button : public Widget{
 public:
-    Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)()); 
+    Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)(), uint16_t delay);
+    Button() : Button{0, 0, "", nullptr, 250}{};
+    bool clicked(uint16_t _xpos, uint16_t _ypos);
     void update(MCUFRIEND_kbv *scr);  // executes the callback function
     void draw(MCUFRIEND_kbv *scr);  // initial drawing of button to screen, should only be called once
 protected:
+    void redraw(MCUFRIEND_kbv *scr);
+
     char label[10];
     void (*callback)();   // callback function pointer
+    uint16_t debounce;  // debounce dedlay in milliseconds
+    unsigned long mark; // For debouncing delay
 };
 
 class Label : public Widget{
@@ -82,16 +93,16 @@ public:
     Timer(uint16_t x, uint16_t y, uint16_t t, void (*_callback)());
     bool clicked(uint16_t x, uint16_t y);
     void update(MCUFRIEND_kbv *scr); // reduces remaining seconds by one and updates display
-    void configure(uint16_t t); // set total countdown duration on the timer
+    void arming_event(uint16_t t); // set total countdown duration on the timer
     void hhmmss(char* buf);  // Prints remaining time into buffer, formatted (hh:mm:ss)
     void draw(MCUFRIEND_kbv *scr);  // Draws the timer on the screen, should only be called once
-
-    unsigned long mark; // for detecting one second intervals with millis()
 protected:
     uint16_t mx;    // minutes x coord
     uint16_t sx;    // seconds x coord
     uint16_t len2dig;   // length of each couple of digits
     uint16_t secs;  // countdown duration left in seconds
+    unsigned long mark; // for detecting one second intervals with millis()
+
     void (*callback)();   // callback for when timer reaches 0 seconds
 private:
     void redraw(MCUFRIEND_kbv *scr); // used internally for better code organization
