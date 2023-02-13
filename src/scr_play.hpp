@@ -6,21 +6,28 @@
 extern MCUFRIEND_kbv tft;
 extern Screen config;
 extern Router sys;
+extern const byte LED_pin;
+extern const byte temp_sens;
 
-extern uint8_t cycles;
+extern uint8_t cycles, cycles_i;
 
 Screen play{&tft};
 
 void btn2_cb();
 void tmr1_cb();
 void tmr2_cb();
+void lbl1_set();
+void lbl2_set();
+void lbl3_set();
 
-Button btn2{90, 380, "Encerrar", btn2_cb, 250};
-Timer tmr1{67, 240, 0, tmr1_cb};	// For ON TIME
-Timer tmr2{67, 240, 0, tmr2_cb};	// For OFF TIME
+Button btn2{80, 380, "Encerrar", btn2_cb};
+Timer tmr1{67, 240, tmr1_cb};	// For ON TIME
+Timer tmr2{67, 240, tmr2_cb};	// For OFF TIME
+Label lbl1{30, 30, 2, WHITE, lbl1_set};
+Label lbl2{30, 60, 2, WHITE, lbl2_set};
 
 void btn2_cb(){
-	sys.switch_screen(&config);
+	sys.goto_screen(&config);
 }
 
 void tmr1_cb(){
@@ -28,35 +35,38 @@ void tmr1_cb(){
 	tmr1.erase(&tft);
 	if(slider3.get_val()){
 		tmr2.arming_event(slider3.get_val());
-		tmr2.activate();
 		tmr2.draw(&tft);
-	}else if(cycles-1){
-		cycles--;
+	}else if(cycles_i < cycles){
+		cycles_i++;
 		tmr1.arming_event(slider2.get_val()*5);
-		tmr1.activate();
 		tmr1.draw(&tft);
 	}
 	else
-		sys.switch_screen(&config);
+		sys.goto_screen(&config);
 }
 
 void tmr2_cb(){
-	if(cycles-1){
-		cycles--;
+	if(cycles_i < cycles){
+		cycles_i++;
 		tmr2.deactivate();
 		tmr2.erase(&tft);
 		tmr1.arming_event(slider2.get_val()*5);
 		tmr1.activate();
 		tmr1.draw(&tft);
 	}else{
-		sys.switch_screen(&config);
+		sys.goto_screen(&config);
 	}
 }
+
+void lbl1_set(){ sprintf(lbl1.text, "Ciclo %d de %d", cycles_i+1, cycles+1); }
+void lbl2_set(){ sprintf(lbl2.text, "Irrad.: 0 W/cm2"); }
 
 void play_add_widgets(){
 	play.add_widget(&btn2);
 	play.add_widget(&tmr1);
 	play.add_widget(&tmr2);
+	play.add_widget(&lbl1);
+	play.add_widget(&lbl2);
 }
 
 #endif

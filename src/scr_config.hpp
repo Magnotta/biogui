@@ -7,26 +7,28 @@ extern MCUFRIEND_kbv tft;
 extern Screen play;
 extern Router sys;
 extern Timer tmr1, tmr2;
+extern const byte LED_pin;
+extern const byte temp_sens;
 
-uint8_t cycles;
+uint8_t cycles, cycles_i;
 
 Screen config = Screen(&tft);
 
 void btn1_cb();
 
-Slider slider1{40, 60, 240, 25, 0, 100, 1, "Potencia", "%"};
-Slider slider2{40, 120, 240, 25, 0, 30, 1, "Tempo on", "min"};
-Slider slider3{40, 180, 240, 25, 0, 300, 10, "Tempo off", "seg"};
-Slider slider4{40, 240, 240, 25, 1, 10, 1, "N Ciclos", ""};
-Slider slider5{40, 300, 240, 25, 5, 15, 1, "Distancia", "cm"};
-Button btn1{90, 380, "Iniciar", btn1_cb, 250};  //Start button
+Slider slider1{40, 60, 0, 100, 1, "Potencia", "%"};
+Slider slider2{40, 120, 0, 60, 1, "Tempo on", "min"};
+Slider slider3{40, 180, 0, 300, 10, "Tempo off", "seg"};
+Slider slider4{40, 240, 1, 10, 1, "N Ciclos", ""};
+Slider slider5{40, 300, 5, 15, 1, "Distancia", "cm"};
+Button btn1{90, 380, "Iniciar", btn1_cb};  //Start button
 
 void btn1_cb(){
-	tmr1.activate();
 	tmr2.deactivate();
 	tmr1.arming_event(slider2.get_val()*5);
-	sys.switch_screen(&play);
-	cycles = slider4.get_val();
+	cycles = slider4.get_val() - 1;
+	cycles_i = 0;
+	sys.goto_screen(&play);
 }
 
 void config_add_widgets(){

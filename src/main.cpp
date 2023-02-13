@@ -22,12 +22,16 @@ TSPoint tp;
 
 uint16_t ID;
 
+const byte temp_sens = A8; //ou A9
+const byte LED_pin = 44; //ou 46
+
 void setup(void){
+  pinMode(temp_sens, INPUT);
+  pinMode(LED_pin, OUTPUT);
+
   tft.reset();
   ID = tft.readID();
   tft.begin(ID);
-  Serial.begin(115200);
-  delay(10);
   tft.setRotation(0);   // Portrait orientation
   tft.fillScreen(BLACK);
 

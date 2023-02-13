@@ -15,8 +15,11 @@ Screen::Screen(MCUFRIEND_kbv *s){
 /// @param y Y coordinate of screen click
 void Screen::update(uint16_t x, uint16_t y){
 	for(uint8_t i = 0; i < widget_count; i++){
-		if(widgets[i]->clicked(x, y))
-			widgets[i]->update(scr);
+		if(widgets[i]->is_active()){
+			if(!widgets[i]->is_clicker() || widgets[i]->clicked(x, y))
+				// Update a widget only if it is not a clicker or has been clicked on
+				widgets[i]->update(scr);
+		}
 	}
 }
 
@@ -27,6 +30,7 @@ void Screen::add_widget(Widget *x){
 	widget_count++;
 }
 
+/// @brief The routine for entering a screen: draws all active widgets
 void Screen::entry(){
 	for(uint8_t i=0; i<widget_count; i++){
 		if(widgets[i]->is_active())
@@ -34,11 +38,17 @@ void Screen::entry(){
 	}
 }
 
+/// @brief The routine for exiting a screen: erases all active widgets
 void Screen::exit(){
 	for(uint8_t i=0; i<widget_count; i++){
-		widgets[i]->erase(scr);
+		if(widgets[i]->is_active())
+			widgets[i]->erase(scr);
 	}
 }
+
+/*##########################################################################
+* Router ###################################################################
+##########################################################################*/
 
 Router::Router(Screen *_home, Screen *cur){
 	home = _home;
@@ -55,7 +65,7 @@ void Router::set_home(Screen *_home){
 
 /// @brief Erase current screen, draw another
 /// @param next Pointer to screen object
-void Router::switch_screen(Screen *_next){
+void Router::goto_screen(Screen *_next){
 	next = _next;
 	jump_set = true;
 }
@@ -73,13 +83,17 @@ void Router::jump(){
 /// @note To be called inside arduino loop()
 void Router::loop(uint16_t x, uint16_t y){
 	current->update(x, y);
-	if(jump_set){
+	if(jump_set)
 		jump();
-	}
 }
 
 /// @brief Draws home screen on the display
 /// @note To be called inside arduino setup()
 void Router::enter(){
+	// load_from_eeprom();
 	home->entry();
+}
+
+void Router::signature(){
+	
 }

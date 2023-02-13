@@ -16,7 +16,7 @@
 
 class Widget{
 public:
-    Widget(uint16_t _ox, uint16_t _oy, uint16_t _len, uint16_t _wid);
+    Widget(uint16_t _ox, uint16_t _oy);
     virtual bool clicked(uint16_t _xpos, uint16_t _ypos);
     virtual void update(MCUFRIEND_kbv *_scr);
     virtual void draw(MCUFRIEND_kbv *_scr);
@@ -24,22 +24,27 @@ public:
     virtual void activate();
     virtual void deactivate();
     virtual bool is_active();
+    virtual bool is_clicker();
 protected:
     uint16_t ox;    // origin x coordinate
     uint16_t oy;    // origin y coordinate
     uint16_t len;   // total length of the slider bar in pixels
     uint16_t wid;   // width of the slider bar in pixels
-    bool active;
-    bool clicking;
+    uint16_t cx;    // click x coordinate
+    uint16_t cy;    // click y coordinate
+    bool clicker;
+    bool active;    
+    bool clicking;  // True while the widget is being clicked on
 };
 
 class Slider : public Widget{
 public:
-    Slider(uint16_t x, uint16_t y, uint16_t l, uint16_t w, uint16_t minv, uint16_t maxv, uint8_t _step, const char lbl[], const char u[]);
-    bool clicked(uint16_t xpos, uint16_t ypos); // returns whether (xpos, ypos) is inside slider area
+    Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t _step, const char lbl[], const char u[]);
+    bool clicked(uint16_t _xpos, uint16_t _ypos);
     void update(MCUFRIEND_kbv *scr);  // updates the value and redraws a slider
     void draw(MCUFRIEND_kbv *scr);  // initial drawing of slider to screen, should only be called once
     void erase(MCUFRIEND_kbv *scr);
+    void reset();
     
     uint16_t get_val(); //returns current value the slider holds
 protected:
@@ -49,7 +54,6 @@ protected:
     uint16_t valy;          // y coord of where to write the current value
     uint16_t min_val;       // minimum value the slider can represent
     uint16_t max_val;       // maximum value the slider can represent
-    uint16_t cx;            // Click x coordinate
     uint8_t minv_offset;       // horizontal offset in pixels of where to write the minimum value
     uint8_t maxv_offset;       // horizontal offset in pixels of where to write the maximum value
     uint8_t label_offset;      // horizontal offset in pixels of where to write the slider label
@@ -63,9 +67,8 @@ private:
 
 class Button : public Widget{
 public:
-    Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)(), uint16_t delay);
-    Button() : Button{0, 0, "", nullptr, 250}{};
-    bool clicked(uint16_t _xpos, uint16_t _ypos);
+    Button(uint16_t x, uint16_t y, const char *lbl, void (*_callback)(), uint16_t delay);
+    Button(uint16_t x, uint16_t y, const char *lbl, void (*_callback)()) : Button{x, y, lbl, _callback, 250}{}
     void update(MCUFRIEND_kbv *scr);  // executes the callback function
     void draw(MCUFRIEND_kbv *scr);  // initial drawing of button to screen, should only be called once
 protected:
@@ -79,19 +82,23 @@ protected:
 
 class Label : public Widget{
 public:
-    Label(char txt[]);
-    Label() : Label{err}{};
+    Label(uint16_t x, uint16_t y, uint8_t size, uint16_t c, void (*setter)());
+    void update(MCUFRIEND_kbv *scr);
+    void draw(MCUFRIEND_kbv *scr);
 
-protected:
     char text[20];
-private:
-    char err[4] = {'e','r','r', '\0'};
+protected:
+    void redraw(MCUFRIEND_kbv *scr);
+
+    char cmp[20];
+    uint16_t color;
+    uint8_t fontsize;
+    void (*set_text)();
 };
 
 class Timer : public Widget{
 public:
-    Timer(uint16_t x, uint16_t y, uint16_t t, void (*_callback)());
-    bool clicked(uint16_t x, uint16_t y);
+    Timer(uint16_t x, uint16_t y, void (*_callback)());
     void update(MCUFRIEND_kbv *scr); // reduces remaining seconds by one and updates display
     void arming_event(uint16_t t); // set total countdown duration on the timer
     void hhmmss(char* buf);  // Prints remaining time into buffer, formatted (hh:mm:ss)

@@ -23,7 +23,7 @@ public:
 	Router() : Router{nullptr, nullptr}{};
 	void enter();
 	void set_home(Screen *_home);
-	void switch_screen(Screen *next);
+	void goto_screen(Screen *next);
 	void signature();
 	void loop(uint16_t x, uint16_t y);
 protected:
@@ -32,7 +32,7 @@ protected:
 	Screen *current;
 	Screen *home;
 	Screen *next;
-	bool jump_set;
+	volatile bool jump_set;
 };
 
 #endif

@@ -7,22 +7,34 @@
 /// @brief Initialize a widget
 /// @param x origin x coordinate
 /// @param y origin y coordinate
-Widget::Widget(uint16_t _ox = 0, uint16_t _oy = 0, uint16_t _len = 0, uint16_t _wid = 0){
+Widget::Widget(uint16_t _ox, uint16_t _oy){
   ox = _ox;
   oy = _oy;
-  len = _len;
-  wid = _wid;
+  len = 0;
+  wid = 0;
+  cx = 0;
+  cy = 0;
   active = true;
   clicking = false;
+  clicker = true; // this prevents Screen::update from updating invisible widgets
 }
 
-/// @brief Check whether the widget was clicked  on
+/// @brief Check whether the widget is active and was clicked on then update its clicking state
 /// @param _x The x coordinate of the click
 /// @param _y the y coordinate of the click
-/// @return True if click is inside widget area, false otherwise
+/// @return True if click is inside active widget area, false otherwise
 bool Widget::clicked(uint16_t _x, uint16_t _y){
-  return active && _x > ox && _x < ox+len && _y > oy && _y < oy+wid;
+  clicking = _x > ox && _x < ox+len && _y > oy && _y < oy+wid;
+  if(clicking){
+    cx = _x;
+    cy = _y;
+  }
+  return clicking;
 }
+
+void Widget::update(MCUFRIEND_kbv *_scr){}
+
+void Widget::draw(MCUFRIEND_kbv *_scr){}
 
 void Widget::erase(MCUFRIEND_kbv *_scr){
   _scr->fillRect(ox, oy, len, wid, BLACK);
@@ -40,6 +52,10 @@ bool Widget::is_active(){
   return active;
 }
 
+bool Widget::is_clicker(){
+  return clicker;
+}
+
 /*##########################################################################
 * Slider ###################################################################
 ##########################################################################*/
@@ -54,11 +70,10 @@ bool Widget::is_active(){
 /// @param _step Step size for the slider bar
 /// @param lbl Label string
 /// @param u Unit string, for example "cm" or "W"
-Slider::Slider(uint16_t x, uint16_t y, uint16_t l, uint16_t w, uint16_t minv, uint16_t maxv, uint8_t _step, const char lbl[], const char u[]){
-  ox = x;
-  oy = y;
-  len = l;
-  bar_wid = w;
+Slider::Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t _step, const char lbl[], const char u[])
+:Widget{x, y}{
+  len = 240;
+  bar_wid = 20;
   wid = bar_wid+29;
   min_val = minv;
   max_val = maxv;
@@ -67,6 +82,7 @@ Slider::Slider(uint16_t x, uint16_t y, uint16_t l, uint16_t w, uint16_t minv, ui
   valy = oy+bar_wid+11;
   val = minv;
   pos = 0;
+  clicker = true;
 
   if(strlen(lbl) < 12)  strcpy(label, lbl);
   else                  strcpy(label, "error");
@@ -86,14 +102,13 @@ Slider::Slider(uint16_t x, uint16_t y, uint16_t l, uint16_t w, uint16_t minv, ui
   else                    maxv_offset = 14;
 }
 
-/// @brief Check wheter a click is inside slider area. If it is, saves the x coordinate of the click.
-/// @param xpos The x coordinate of the click
-/// @param ypos The y coordinate of the click
-/// @return True or false
-bool Slider::clicked(uint16_t xpos, uint16_t ypos){
-  bool aux = xpos > ox-3 && xpos < ox+len+3 && ypos > oy && ypos < oy+bar_wid;
-  if(aux) cx = xpos;
-  return aux;
+bool Slider::clicked(uint16_t _x, uint16_t _y){
+  clicking = _x > ox && _x < ox+len+3 && _y > oy && _y < oy+wid;
+  if(clicking){
+    cx = _x;
+    cy = _y;
+  }
+  return clicking;
 }
 
 /// @brief Update slider value and redraw it
@@ -124,8 +139,10 @@ void Slider::redraw(MCUFRIEND_kbv *scr){
 /// @brief Draw slider on the display. Calling more than once is redundant
 /// @param scr display screen
 void Slider::draw(MCUFRIEND_kbv *scr){  
-  scr->setTextSize(2);
   scr->drawRect(ox-3, oy-3, len+6, bar_wid+6, WHITE);
+  scr->fillRect(ox, oy, pos, bar_wid, WHITE);
+  
+  scr->setTextSize(2);
   scr->setCursor(ox-minv_offset, valy);  
   scr->print(min_val);
   scr->setCursor(ox+label_offset, valy);
@@ -143,6 +160,11 @@ void Slider::erase(MCUFRIEND_kbv *scr){
   scr->fillRect(ox-10, oy+bar_wid+11, len+30, 16, BLACK);
 }
 
+void Slider::reset(){
+  val = min_val;
+  pos = 0;
+}
+
 uint16_t Slider::get_val(){
   return val;
 }
@@ -156,30 +178,22 @@ uint16_t Slider::get_val(){
 /// @param y Origin (top left corner) y coordinate
 /// @param lbl Label to be written inside the button
 /// @param _callback Function pointer to callback function
-Button::Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)(), uint16_t delay){
-  ox = x;
-  oy = y;
-
+Button::Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)(), uint16_t delay)
+:Widget{x, y}{
   if(strlen(lbl) < 12)  strcpy(label, lbl);
   else                  strcpy(label, "error");
 
-  len = 19 * strlen(label) + 5;
-  wid = 31;
-
+  len = 18*strlen(label) + 7; // -3 from formula, +10 from text displacement
+  wid = 31; // 21 from formula, +10 from text displacement
   callback = _callback;
-
   debounce = delay;
+  clicker = true;
 }
 
-bool Button::clicked(uint16_t _xpos, uint16_t _ypos){
-  clicking = active && _xpos > ox && _xpos < ox+len && _ypos > oy && _ypos < oy+wid;
-  return clicking;
-}
-
-/// @brief Run the callback function
+/// @brief Run the callback function no more than once every 'debounce' ms
 /// @param scr Display screen
 void Button::update(MCUFRIEND_kbv *scr){
-  if(millis() - mark > 250){
+  if(millis() - mark > debounce){
     mark = millis();
     (*callback)();
     redraw(scr);
@@ -219,8 +233,58 @@ void Button::redraw(MCUFRIEND_kbv *scr){
 * Label ####################################################################
 ##########################################################################*/
 
-Label::Label(char txt[]){
-  if(strlen(txt) < 12)  strcpy(text, txt);
+Label::Label(uint16_t x, uint16_t y, uint8_t size, uint16_t c, void (*setter)())
+:Widget{x, y}{
+  fontsize = size;
+  color = c;
+  set_text = setter;
+  clicker = false;
+
+  (*set_text)();
+  byte _l = strlen(text);
+
+  switch(fontsize){
+  case 1:
+    len = 6*_l-1;
+    wid = 7;
+    break;
+  case 2:
+    len = 12*_l-2;
+    wid = 14;
+    break;
+  case 3:
+    len = 18*_l-13;
+    wid = 21;
+    break;
+  default:
+    strcpy(text, "error");
+    set_text = nullptr;
+    fontsize = 2;
+    len = 58;
+    wid = 14;
+  }
+}
+
+void Label::update(MCUFRIEND_kbv *scr){
+  if(set_text != nullptr)
+    (*set_text)();
+  if(strcmp(cmp, text)){
+    strcpy(cmp, text);
+    redraw(scr);
+  }
+}
+
+void Label::draw(MCUFRIEND_kbv *scr){
+  scr->setCursor(ox, oy);
+  scr->setTextSize(fontsize);
+  scr->setTextColor(color);
+  scr->print(text);
+  scr->setTextColor(WHITE);
+}
+
+void Label::redraw(MCUFRIEND_kbv *scr){
+  erase(scr);
+  draw(scr);
 }
 
 /*##########################################################################
@@ -230,21 +294,15 @@ Label::Label(char txt[]){
 /// @brief Initialize a timer
 /// @param x origin x coordinate
 /// @param y origin y coordinate
-Timer::Timer(uint16_t x, uint16_t y, uint16_t t, void (*_callback)()){
-  ox = x;
-  oy = y;
+Timer::Timer(uint16_t x, uint16_t y, void (*_callback)())
+:Widget{x, y}{
   wid = 28;
   len = 188;
   len2dig = 44;
   mx = ox + 72;
   sx = mx + 72;
-  secs = t;
-
   callback = _callback;
-}
-
-bool Timer::clicked(uint16_t x, uint16_t y){
-  return active;
+  clicker = false;
 }
 
 /// @brief Decrease timer seconds and update the display. When zero is reached, run the callback function
@@ -305,9 +363,13 @@ void Timer::draw(MCUFRIEND_kbv *scr){
   hhmmss(aux);
   scr->print(aux);
   scr->setTextColor(WHITE);
+
+  mark = millis();
 }
 
+/// @brief Activate a timer and set its countdown value
+/// @param t Time span for the countdown in seconds
 void Timer::arming_event(uint16_t t){
+  activate();
   secs = t;
-  mark = millis();
 }
