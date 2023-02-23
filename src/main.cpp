@@ -3,6 +3,7 @@
 #include <nav.hpp>
 #include "scr_config.hpp"
 #include "scr_play.hpp"
+#include <temperature.hpp>
 
 MCUFRIEND_kbv tft;
 
@@ -22,17 +23,18 @@ TSPoint tp;
 
 uint16_t ID;
 
-const byte temp_sens = A8; //ou A9
 const byte LED_pin = 44; //ou 46
+TempSens temperature{A9, 7, 0.489};
 
 void setup(void){
-  pinMode(temp_sens, INPUT);
   pinMode(LED_pin, OUTPUT);
+
+  temperature.initialize();
 
   tft.reset();
   ID = tft.readID();
   tft.begin(ID);
-  tft.setRotation(0);   // Portrait orientation
+  tft.setRotation(2);   // Portrait orientation
   tft.fillScreen(BLACK);
 
   delay(1000);
@@ -57,9 +59,11 @@ void loop(){
   // we have some minimum pressure we consider 'valid'
   // pressure of 0 means no pressing!
   if(tp.z > MINPRESSURE && tp.z < MAXPRESSURE){
-    xpos = map(tp.x, TS_LEFT, TS_RT, 0, tft.width());
-    ypos = map(tp.y, TS_TOP, TS_BOT, 0, tft.height());
+    xpos = map(tp.x, TS_RT, TS_LEFT, 0, tft.width());
+    ypos = map(tp.y, TS_BOT, TS_TOP, 0, tft.height());
   }
 
   sys.loop(xpos, ypos);
+  
+  temperature.update();
 }

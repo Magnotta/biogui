@@ -10,9 +10,9 @@ extern Timer tmr1, tmr2;
 extern const byte LED_pin;
 extern const byte temp_sens;
 
-uint8_t cycles, cycles_i;
+uint8_t cycles, cycles_i, pwm;
 
-Screen config = Screen(&tft);
+Screen config{&tft};
 
 void btn1_cb();
 
@@ -24,11 +24,13 @@ Slider slider5{40, 300, 5, 15, 1, "Distancia", "cm"};
 Button btn1{90, 380, "Iniciar", btn1_cb};  //Start button
 
 void btn1_cb(){
-	tmr2.deactivate();
+	pwm = map(slider1.get_val(), 0, 100, 0, 255);
 	tmr1.arming_event(slider2.get_val()*5);
+	tmr2.deactivate();
 	cycles = slider4.get_val() - 1;
 	cycles_i = 0;
 	sys.goto_screen(&play);
+	analogWrite(LED_pin, pwm);
 }
 
 void config_add_widgets(){

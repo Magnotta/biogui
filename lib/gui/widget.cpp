@@ -184,7 +184,7 @@ Button::Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)(), ui
   else                  strcpy(label, "error");
 
   len = 18*strlen(label) + 7; // -3 from formula, +10 from text displacement
-  wid = 31; // 21 from formula, +10 from text displacement
+  wid = 34; // 24 from formula, +10 from text displacement
   callback = _callback;
   debounce = delay;
   clicker = true;
@@ -246,15 +246,15 @@ Label::Label(uint16_t x, uint16_t y, uint8_t size, uint16_t c, void (*setter)())
   switch(fontsize){
   case 1:
     len = 6*_l-1;
-    wid = 7;
+    wid = 8;
     break;
   case 2:
     len = 12*_l-2;
-    wid = 14;
+    wid = 16;
     break;
   case 3:
-    len = 18*_l-13;
-    wid = 21;
+    len = 18*_l-3;
+    wid = 24;
     break;
   default:
     strcpy(text, "error");
@@ -270,6 +270,7 @@ void Label::update(MCUFRIEND_kbv *scr){
     (*set_text)();
   if(strcmp(cmp, text)){
     strcpy(cmp, text);
+    len = fontsize * 6 * strlen(text) - fontsize;
     redraw(scr);
   }
 }
