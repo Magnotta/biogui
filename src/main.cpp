@@ -1,9 +1,10 @@
 #include <MCUFRIEND_kbv.h>
 #include <TouchScreen.h>
 #include <nav.hpp>
+#include <temperature.hpp>
+#include <head.hpp>
 #include "scr_config.hpp"
 #include "scr_play.hpp"
-#include <temperature.hpp>
 
 MCUFRIEND_kbv tft;
 
@@ -23,13 +24,10 @@ TSPoint tp;
 
 uint16_t ID;
 
-const byte LED_pin = 44; //ou 46
-TempSens temperature{A9, 7, 0.489};
+LEDHead head{44, A9, 50.0};
 
 void setup(void){
-  pinMode(LED_pin, OUTPUT);
-
-  temperature.initialize();
+  head.init();
 
   tft.reset();
   ID = tft.readID();
@@ -65,5 +63,5 @@ void loop(){
 
   sys.loop(xpos, ypos);
   
-  temperature.update();
+  head.verify();
 }

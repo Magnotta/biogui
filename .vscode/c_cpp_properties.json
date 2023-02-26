@@ -10,9 +10,10 @@
             "includePath": [
                 "/home/mag/Projects/biogui/include",
                 "/home/mag/Projects/biogui/src",
-                "/home/mag/Projects/biogui/lib/temperature",
                 "/home/mag/Projects/biogui/lib/nav",
                 "/home/mag/Projects/biogui/lib/gui",
+                "/home/mag/Projects/biogui/lib/head",
+                "/home/mag/Projects/biogui/lib/temperature",
                 "/home/mag/Projects/biogui/.pio/libdeps/biogui/Adafruit TouchScreen",
                 "/home/mag/Projects/biogui/.pio/libdeps/biogui/MCUFRIEND_kbv",
                 "/home/mag/Projects/biogui/.pio/libdeps/biogui/MCUFRIEND_kbv/utility",
@@ -32,9 +33,10 @@
                 "path": [
                     "/home/mag/Projects/biogui/include",
                     "/home/mag/Projects/biogui/src",
-                    "/home/mag/Projects/biogui/lib/temperature",
                     "/home/mag/Projects/biogui/lib/nav",
                     "/home/mag/Projects/biogui/lib/gui",
+                    "/home/mag/Projects/biogui/lib/head",
+                    "/home/mag/Projects/biogui/lib/temperature",
                     "/home/mag/Projects/biogui/.pio/libdeps/biogui/Adafruit TouchScreen",
                     "/home/mag/Projects/biogui/.pio/libdeps/biogui/MCUFRIEND_kbv",
                     "/home/mag/Projects/biogui/.pio/libdeps/biogui/MCUFRIEND_kbv/utility",

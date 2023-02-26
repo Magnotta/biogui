@@ -3,13 +3,13 @@
 
 #include <nav.hpp>
 #include <temperature.hpp>
+#include <head.hpp>
 
 extern MCUFRIEND_kbv tft;
 extern Screen config;
 extern Router sys;
 extern Slider slider2, slider3;
-extern const byte LED_pin;
-extern TempSens temperature;
+extern LEDHead head;
 
 extern uint8_t cycles, cycles_i, pwm;
 Screen play{&tft};
@@ -30,7 +30,7 @@ Label lbl3{30, 90, 2, WHITE, lbl3_set};
 
 void btn2_cb(){
 	sys.goto_screen(&config);
-	digitalWrite(LED_pin, LOW);
+	head.LEDOff();
 }
 
 void tmr1_cb(){
@@ -39,7 +39,7 @@ void tmr1_cb(){
 	if(slider3.get_val()){
 		tmr2.arming_event(slider3.get_val());
 		tmr2.draw(&tft);
-		digitalWrite(LED_pin, LOW);
+		head.LEDOff();
 	}else if(cycles_i < cycles){
 		cycles_i++;
 		tmr1.arming_event(slider2.get_val()*5);
@@ -47,7 +47,7 @@ void tmr1_cb(){
 	}
 	else{
 		sys.goto_screen(&config);
-		digitalWrite(LED_pin, LOW);
+		head.LEDOff();
 	}
 }
 
@@ -59,16 +59,16 @@ void tmr2_cb(){
 		tmr1.arming_event(slider2.get_val()*5);
 		tmr1.activate();
 		tmr1.draw(&tft);
-		analogWrite(LED_pin, pwm);
+		head.LEDOn(pwm);
 	}else{
 		sys.goto_screen(&config);
-		digitalWrite(LED_pin, LOW);
+		head.LEDOff();
 	}
 }
 
 void lbl1_set(){ sprintf(lbl1.text, "Ciclo %d de %d", cycles_i+1, cycles+1); }
 void lbl2_set(){ sprintf(lbl2.text, "Irrad.: 0 W/cm2"); }
-void lbl3_set(){ sprintf(lbl3.text, "%s graus C", temperature.temperature_string); }
+void lbl3_set(){ sprintf(lbl3.text, "Temp LED: %s C", head.temperature_string); }
 
 void play_add_widgets(){
 	play.add_widget(&btn2);

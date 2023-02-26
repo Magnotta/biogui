@@ -5,21 +5,27 @@
 
 class TempSens{
 public:
-	TempSens(uint8_t pin, uint8_t window_size, double multiplier=0.489);
-	void initialize();
+	TempSens(uint8_t pin, uint8_t window_size, int delay_ms, double shutoff_temperature, double multiplier=0.489);
+	TempSens():TempSens{0, 7, 1000, 50.0}{};
+	void init();
 	void update();
 	double getTemp();
-	
-	char temperature_string[6];
+	void setPin(uint8_t pin);
+	void setSOT(double temp);
+	bool safe();
 protected:
 	void append(double newValue);
 	void copy(double *aux);
+	double median_filter();
 private:
-	unsigned long time_stamp;
 	byte sensor_pin;
+	unsigned long timestamp;
 	uint8_t median_filter_array_size;
 	double temperature_array[15];
 	double conversion_factor;
+	double temperature;
+	double shutoff_temperature;
+	int delay_ms;
 };
 
 #endif
