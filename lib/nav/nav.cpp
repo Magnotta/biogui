@@ -66,6 +66,8 @@ void Router::set_home(Screen *_home){
 /// @brief Erase current screen, draw another
 /// @param next Pointer to screen object
 void Router::goto_screen(Screen *_next){
+	if(current == _next)
+		return;
 	next = _next;
 	jump_set = true;
 }

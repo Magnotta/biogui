@@ -5,6 +5,7 @@
 #include <head.hpp>
 #include "scr_config.hpp"
 #include "scr_play.hpp"
+#include "scr_error.hpp"
 
 MCUFRIEND_kbv tft;
 
@@ -24,7 +25,7 @@ TSPoint tp;
 
 uint16_t ID;
 
-LEDHead head{44, A9, 50.0};
+LEDHead head{44, A9, 30.0};
 
 void setup(void){
   head.init();
@@ -40,8 +41,9 @@ void setup(void){
   tft.setCursor(51, 465);
   tft.print("Andre Mariano e Paulo Souza - IF UnB");
 
-  config_add_widgets();
-  play_add_widgets();
+  Config::add_widgets();
+  Play::add_widgets();
+  Error::add_widgets();
 
   sys.enter();
 }
@@ -63,5 +65,8 @@ void loop(){
 
   sys.loop(xpos, ypos);
   
-  head.verify();
+  if(!head.verify()){
+    head.LEDOff();
+    sys.goto_screen(&error);
+  }
 }

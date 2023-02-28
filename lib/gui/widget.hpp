@@ -25,6 +25,8 @@ public:
     virtual void deactivate();
     virtual bool is_active();
     virtual bool is_clicker();
+    virtual uint16_t getWid();
+    virtual uint16_t getLen();
 protected:
     uint16_t ox;    // origin x coordinate
     uint16_t oy;    // origin y coordinate
@@ -82,15 +84,15 @@ protected:
 
 class Label : public Widget{
 public:
-    Label(uint16_t x, uint16_t y, uint8_t size, uint16_t c, void (*setter)());
+    Label(uint16_t x, uint16_t y, uint8_t _fontsize, uint16_t _color, void (*setter)());
     void update(MCUFRIEND_kbv *scr);
     void draw(MCUFRIEND_kbv *scr);
 
-    char text[20];
+    char text[25];
 protected:
     void redraw(MCUFRIEND_kbv *scr);
 
-    char cmp[20];
+    char cmp[25];
     uint16_t color;
     uint8_t fontsize;
     void (*set_text)();

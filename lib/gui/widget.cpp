@@ -56,6 +56,14 @@ bool Widget::is_clicker(){
   return clicker;
 }
 
+uint16_t Widget::getWid(){
+  return wid;
+}
+
+uint16_t Widget::getLen(){
+  return len;
+}
+
 /*##########################################################################
 * Slider ###################################################################
 ##########################################################################*/
@@ -233,10 +241,10 @@ void Button::redraw(MCUFRIEND_kbv *scr){
 * Label ####################################################################
 ##########################################################################*/
 
-Label::Label(uint16_t x, uint16_t y, uint8_t size, uint16_t c, void (*setter)())
+Label::Label(uint16_t x, uint16_t y, uint8_t _fontsize, uint16_t _color, void (*setter)())
 :Widget{x, y}{
-  fontsize = size;
-  color = c;
+  fontsize = _fontsize;
+  color = _color;
   set_text = setter;
   clicker = false;
 
