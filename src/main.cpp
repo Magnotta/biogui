@@ -25,7 +25,7 @@ TSPoint tp;
 
 uint16_t ID;
 
-LEDHead head{44, A9, 30.0};
+LEDHead head{44, A9, 65.0};
 
 void setup(void){
   head.init();

@@ -96,6 +96,7 @@ protected:
     uint16_t color;
     uint8_t fontsize;
     void (*set_text)();
+    unsigned long mark;
 };
 
 class Timer : public Widget{

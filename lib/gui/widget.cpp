@@ -247,6 +247,7 @@ Label::Label(uint16_t x, uint16_t y, uint8_t _fontsize, uint16_t _color, void (*
   color = _color;
   set_text = setter;
   clicker = false;
+  mark = millis();
 
   (*set_text)();
   byte _l = strlen(text);
@@ -274,12 +275,15 @@ Label::Label(uint16_t x, uint16_t y, uint8_t _fontsize, uint16_t _color, void (*
 }
 
 void Label::update(MCUFRIEND_kbv *scr){
-  if(set_text != nullptr)
-    (*set_text)();
-  if(strcmp(cmp, text)){
-    strcpy(cmp, text);
-    len = fontsize * 6 * strlen(text) - fontsize;
-    redraw(scr);
+  if(millis() - mark > 1000){
+    if(set_text != nullptr)
+      (*set_text)();
+    if(strcmp(cmp, text)){
+      strcpy(cmp, text);
+      len = fontsize * 6 * strlen(text) - fontsize;
+      redraw(scr);
+    }
+    mark = millis();
   }
 }
 
