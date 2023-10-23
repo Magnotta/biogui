@@ -15,11 +15,9 @@ Screen::Screen(MCUFRIEND_kbv *s){
 /// @param y Y coordinate of screen click
 void Screen::update(uint16_t x, uint16_t y){
 	for(uint8_t i = 0; i < widget_count; i++){
-		if(widgets[i]->is_active()){
-			if(!widgets[i]->is_clicker() || widgets[i]->clicked(x, y))
-				// Update a widget only if it is not a clicker or has been clicked on
+		if(widgets[i]->is_active() && (!widgets[i]->is_clicker() || widgets[i]->clicked(x, y)))
+				// Update a widget only if it is active, is not a clicker or has been clicked on
 				widgets[i]->update(scr);
-		}
 	}
 }
 

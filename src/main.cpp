@@ -1,7 +1,7 @@
 #include <MCUFRIEND_kbv.h>
 #include <TouchScreen.h>
 #include <nav.hpp>
-#include <temperature.hpp>
+#include <sensors.hpp>
 #include <head.hpp>
 #include "scr_config.hpp"
 #include "scr_play.hpp"
@@ -25,7 +25,7 @@ TSPoint tp;
 
 uint16_t ID;
 
-LEDHead head{44, A9, 65.0};
+LEDHead head{46, A9, A8, 65.0};
 
 void setup(void){
   head.init();
@@ -33,7 +33,7 @@ void setup(void){
   tft.reset();
   ID = tft.readID();
   tft.begin(ID);
-  tft.setRotation(2);   // Portrait orientation
+  tft.setRotation(0);   // Portrait orientation
   tft.fillScreen(BLACK);
 
   delay(1000);
@@ -59,13 +59,14 @@ void loop(){
   // we have some minimum pressure we consider 'valid'
   // pressure of 0 means no pressing!
   if(tp.z > MINPRESSURE && tp.z < MAXPRESSURE){
-    xpos = map(tp.x, TS_RT, TS_LEFT, 0, tft.width());
-    ypos = map(tp.y, TS_BOT, TS_TOP, 0, tft.height());
+    xpos = map(tp.x, TS_LEFT, TS_RT, 0, tft.width());
+    ypos = map(tp.y, TS_TOP, TS_BOT, 0, tft.height());
   }
 
   sys.loop(xpos, ypos);
-  
-  if(!head.verify()){
+
+  head.update();
+  if(!head.temp_safe()){
     head.LEDOff();
     sys.goto_screen(&error);
   }

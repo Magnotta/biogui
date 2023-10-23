@@ -20,7 +20,6 @@ protected:
 class Router{
 public:
 	Router(Screen *_home, Screen *cur);
-	Router() : Router{nullptr, nullptr}{};
 	void enter();
 	void set_home(Screen *_home);
 	void goto_screen(Screen *next);

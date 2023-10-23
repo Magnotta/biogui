@@ -1,8 +1,5 @@
-#ifndef SCREENERROR
-#define SCREENERROR
-
 #include <nav.hpp>
-#include <temperature.hpp>
+#include <sensors.hpp>
 #include <head.hpp>
 
 extern MCUFRIEND_kbv tft;
@@ -40,5 +37,3 @@ void add_widgets(){
 }
 
 }
-
-#endif

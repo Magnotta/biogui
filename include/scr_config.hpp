@@ -1,6 +1,3 @@
-#ifndef SCREENCONFIG
-#define SCREENCONFIG
-
 #include <nav.hpp>
 #include <head.hpp>
 #include <math.h>
@@ -75,5 +72,3 @@ void add_widgets(){
 }
 
 }
-
-#endif

@@ -79,7 +79,7 @@ uint16_t Widget::getLen(){
 /// @param lbl Label string
 /// @param u Unit string, for example "cm" or "W"
 Slider::Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t _step, const char lbl[], const char u[])
-:Widget{x, y}{
+:Widget(x, y){
   len = 240;
   bar_wid = 20;
   wid = bar_wid+29;
@@ -187,7 +187,7 @@ uint16_t Slider::get_val(){
 /// @param lbl Label to be written inside the button
 /// @param _callback Function pointer to callback function
 Button::Button(uint16_t x, uint16_t y, const char lbl[], void (*_callback)(), uint16_t delay)
-:Widget{x, y}{
+:Widget(x, y){
   if(strlen(lbl) < 12)  strcpy(label, lbl);
   else                  strcpy(label, "error");
 
@@ -241,8 +241,14 @@ void Button::redraw(MCUFRIEND_kbv *scr){
 * Label ####################################################################
 ##########################################################################*/
 
+/// @brief Display dynamic text on screen
+/// @param x Origin (top left corner) x coordinate
+/// @param y Origin (top left corner) y coordinate
+/// @param _fontsize Text fontsize in pixels
+/// @param _color Text color
+/// @param setter Function to set the label text, typically a wrapper around an sprintf call
 Label::Label(uint16_t x, uint16_t y, uint8_t _fontsize, uint16_t _color, void (*setter)())
-:Widget{x, y}{
+:Widget(x, y){
   fontsize = _fontsize;
   color = _color;
   set_text = setter;
@@ -308,7 +314,7 @@ void Label::redraw(MCUFRIEND_kbv *scr){
 /// @param x origin x coordinate
 /// @param y origin y coordinate
 Timer::Timer(uint16_t x, uint16_t y, void (*_callback)())
-:Widget{x, y}{
+:Widget(x, y){
   wid = 28;
   len = 188;
   len2dig = 44;
