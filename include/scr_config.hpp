@@ -1,6 +1,6 @@
+#include <math.h>
 #include <nav.hpp>
 #include <head.hpp>
-#include <math.h>
 
 extern MCUFRIEND_kbv tft;
 extern Router sys;
@@ -33,19 +33,19 @@ Button btn1{90, 410, "Iniciar", btn1_cb};  //Start button
 void lbl1_set(){
 	double fluence;
 	fluence = (0.1394+1897.7/(1+pow(slider5.get_val()/1.9726, 2.0892)))/(0.1394+1897.7/(1+pow(10/1.9726, 2.0892)));
-	fluence = fluence*73.6*(double)slider1.get_val()/100.0;
+	fluence = fluence*73.6*static_cast<double>(slider1.get_val())/100.0;
 	char buf[7];
-	sprintf(lbl1.text, "Fluencia= %s mW/cm2", dtostrf(fluence, 6, 2, buf));
+	snprintf(lbl1.text, 25, "Fluencia= %s mW/cm2", dtostrf(fluence, 6, 2, buf));
 }
 
 void lbl2_set(){
 	double fluence;
 	fluence = (0.1394+1897.7/(1+pow(slider5.get_val()/1.9726, 2.0892)))/(0.1394+1897.7/(1+pow(10/1.9726, 2.0892)));
-	fluence = fluence*73.6*(double)slider1.get_val()/100.0;
+	fluence = fluence*73.6*static_cast<double>(slider1.get_val())/100.0;
 	double irradiance;
-	irradiance = fluence*slider2.get_val()*slider4.get_val()*60/1000;
+	irradiance = fluence*static_cast<double>(slider2.get_val()*slider4.get_val()*60)/1000.0;
 	char buf[9];
-	sprintf(lbl2.text, "Irrad.= %s J/cm2", dtostrf(irradiance, 8, 2, buf));
+	snprintf(lbl2.text, 25, "Irrad.= %s J/cm2", dtostrf(irradiance, 8, 2, buf));
 }
 
 void btn1_cb(){
@@ -71,4 +71,4 @@ void add_widgets(){
 	config.add_widget(&btn1);
 }
 
-}
+} // namespace Config

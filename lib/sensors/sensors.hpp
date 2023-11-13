@@ -1,5 +1,5 @@
-#ifndef SENSORS
-#define SENSORS
+#ifndef LIB_SENSORS_SENSORS_HPP_
+#define LIB_SENSORS_SENSORS_HPP_
 
 #include <Arduino.h>
 
@@ -23,7 +23,7 @@ protected:
 
 class TempSens : public Sens{
 public:
-	TempSens(uint8_t _pin, uint8_t _window_size, double _conversion_coeff=0.489);
+	TempSens(uint8_t _pin, uint8_t _window_size, double _conversion_coeff = 0.489);
 	TempSens():TempSens{0, 0}{};
 	void update();
 protected:
@@ -33,8 +33,8 @@ protected:
 
 class AmpSens : public Sens{
 public:
-	AmpSens(uint8_t _pin, uint8_t _window_size, uint16_t _shift=310, double _conversion_coeff=0.0264);
-	AmpSens():AmpSens(0, 0){};
+	AmpSens(uint8_t _pin, uint8_t _window_size, uint16_t _shift = 310, double _conversion_coeff = 0.0264);
+	AmpSens():AmpSens(0, 0){}
 	void update();
 protected:
 	double get_data();
@@ -42,4 +42,4 @@ protected:
 	double conversion_coeff;
 };
 
-#endif
+#endif // LIB_SENSORS_SENSORS_HPP_

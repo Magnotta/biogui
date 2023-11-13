@@ -1,5 +1,5 @@
-#ifndef LED_HEAD
-#define LED_HEAD
+#ifndef LIB_HEAD_HEAD_HPP_
+#define LIB_HEAD_HEAD_HPP_
 
 #include <Arduino.h>
 #include "sensors.hpp"
@@ -20,7 +20,6 @@ protected:
 	AmpSens amp_sens;
 	uint8_t LED_control_pin;
 	double shut_off_temp;
-	unsigned long timestamp;
 };
 
-#endif
+#endif // LIB_HEAD_HEAD_HPP_

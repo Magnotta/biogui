@@ -43,8 +43,7 @@ void tmr1_cb(){
 		cycles_i++;
 		tmr1.arming_event(Config::slider2.get_val()*60);
 		tmr1.draw(&tft);
-	}
-	else{
+	}else{
 		sys.goto_screen(&config);
 		head.LEDOff();
 	}
@@ -65,9 +64,9 @@ void tmr2_cb(){
 	}
 }
 
-void lbl1_set(){ sprintf(lbl1.text, "Ciclo %d de %d", cycles_i+1, cycles+1); }
-void lbl2_set(){ sprintf(lbl2.text, "Temp LED: %s C", head.temperature_string); }
-void lbl3_set(){ sprintf(lbl3.text, "Corrente: %s A", head.amps_string); }
+void lbl1_set(){ snprintf(lbl1.text, 25, "Ciclo %d de %d", cycles_i+1, cycles+1); }
+void lbl2_set(){ snprintf(lbl2.text, 25, "Temp LED: %s C", head.temperature_string); }
+void lbl3_set(){ snprintf(lbl3.text, 25, "Corrente: %s A", head.amps_string); }
 
 void add_widgets(){
 	play.add_widget(&btn1);
@@ -78,4 +77,4 @@ void add_widgets(){
 	play.add_widget(&lbl3);
 }
 
-}
+} // namespace Play

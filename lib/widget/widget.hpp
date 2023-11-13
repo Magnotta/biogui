@@ -1,8 +1,10 @@
-#ifndef WIDGET_HPP
-#define WIDGET_HPP
+#ifndef LIB_WIDGET_WIDGET_HPP_
+#define LIB_WIDGET_WIDGET_HPP_
 
 #include <Arduino.h>
 #include <MCUFRIEND_kbv.h>
+#include "nav.fwd.hpp"
+#include "nav.hpp"
 
 // Assign human-readable names to some common 16-bit color values:
 #define BLACK   0x0000
@@ -27,6 +29,7 @@ public:
     virtual bool is_clicker();
     virtual uint16_t getWid();
     virtual uint16_t getLen();
+
 protected:
     uint16_t ox;    // origin x coordinate
     uint16_t oy;    // origin y coordinate
@@ -36,19 +39,21 @@ protected:
     uint16_t cy;    // click y coordinate
     bool clicker;
     bool active;    
-    bool clicking;  // True while the widget is being clicked on
+    bool clicking;  // true while the widget is being clicked on
+    Router *system;
 };
 
 class Slider : public Widget{
 public:
-    Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t _step, const char lbl[], const char u[]);
+    Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t _step, const char _label[], const char _unit[]);
     bool clicked(uint16_t _xpos, uint16_t _ypos);
     void update(MCUFRIEND_kbv *scr);  // updates the value and redraws a slider
     void draw(MCUFRIEND_kbv *scr);  // initial drawing of slider to screen, should only be called once
     void erase(MCUFRIEND_kbv *scr);
     void reset();
-    
-    uint16_t get_val(); //returns current value the slider holds
+
+    uint16_t get_val(); // returns current value the slider holds
+
 protected:
     uint16_t pos;           // current position of the slider bar in pixels
     uint16_t val;           // current value the slider represents
@@ -63,23 +68,24 @@ protected:
     uint8_t bar_wid;           // vertical width of the slider bar in pixels
     char label[13];         // usually ends with an =
     char unit[5];           // unit of measurement e.g. "%", "cm", "W/m2"
+
 private:
     void redraw(MCUFRIEND_kbv *scr); // used internally for better code organization
 };
 
 class Button : public Widget{
 public:
-    Button(uint16_t x, uint16_t y, const char *lbl, void (*_callback)(), uint16_t delay);
-    Button(uint16_t x, uint16_t y, const char *lbl, void (*_callback)()) : Button{x, y, lbl, _callback, 250}{}
+    Button(uint16_t x, uint16_t y, const char *_label, void (*_callback)(), uint16_t delay = 0);
     void update(MCUFRIEND_kbv *scr);  // executes the callback function
     void draw(MCUFRIEND_kbv *scr);  // initial drawing of button to screen, should only be called once
+
 protected:
     void redraw(MCUFRIEND_kbv *scr);
 
     char label[10];
     void (*callback)();   // callback function pointer
-    uint16_t debounce;  // debounce dedlay in milliseconds
-    unsigned long mark; // For debouncing delay
+    uint16_t debounce;  // debounce delay in milliseconds
+    uint32_t mark; // for debouncing delay
 };
 
 class Label : public Widget{
@@ -89,6 +95,7 @@ public:
     void draw(MCUFRIEND_kbv *scr);
 
     char text[25];
+
 protected:
     void redraw(MCUFRIEND_kbv *scr);
 
@@ -96,7 +103,6 @@ protected:
     uint16_t color;
     uint8_t fontsize;
     void (*set_text)();
-    unsigned long mark;
 };
 
 class Timer : public Widget{
@@ -104,18 +110,30 @@ public:
     Timer(uint16_t x, uint16_t y, void (*_callback)());
     void update(MCUFRIEND_kbv *scr); // reduces remaining seconds by one and updates display
     void arming_event(uint16_t t); // set total countdown duration on the timer
-    void hhmmss(char* buf);  // Prints remaining time into buffer, formatted (hh:mm:ss)
-    void draw(MCUFRIEND_kbv *scr);  // Draws the timer on the screen, should only be called once
+    void hhmmss(char* buf);  // prints remaining time into buffer, formatted (hh:mm:ss)
+    void draw(MCUFRIEND_kbv *scr);  // draws the timer on the screen, should only be called once
+
 protected:
     uint16_t mx;    // minutes x coord
     uint16_t sx;    // seconds x coord
     uint16_t len2dig;   // length of each couple of digits
     uint16_t secs;  // countdown duration left in seconds
-    unsigned long mark; // for detecting one second intervals with millis()
 
     void (*callback)();   // callback for when timer reaches 0 seconds
+
 private:
     void redraw(MCUFRIEND_kbv *scr); // used internally for better code organization
 };
 
-#endif
+class NaviButton : public Widget{
+public:    
+    NaviButton(uint16_t x, uint16_t y, const char *_label, Screen *_dest);
+    void update(MCUFRIEND_kbv *scr);
+    void draw(MCUFRIEND_kbv *scr);
+
+protected:
+    char label[12];
+    Screen *dest;
+};
+
+#endif // LIB_WIDGET_WIDGET_HPP_

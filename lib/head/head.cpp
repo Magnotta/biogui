@@ -11,18 +11,14 @@ LEDHead::LEDHead(uint8_t _LED_control_pin, uint8_t _temp_sens_pin, uint8_t _amp_
 void LEDHead::init(){
 	temp_sens.init();
 	pinMode(LED_control_pin, OUTPUT);
-	timestamp = millis();
 }
 
 void LEDHead::update(){
-	if(millis() - timestamp > 1000){
-		timestamp = millis();
-		temp_sens.update();
-		dtostrf(temp_sens.get_fdata(), 5, 2, temperature_string);
+	temp_sens.update();
+	dtostrf(temp_sens.get_fdata(), 5, 2, temperature_string);
 
-		amp_sens.update();
-		dtostrf(amp_sens.get_fdata(), 9, 2, amps_string);
-	}
+	amp_sens.update();
+	dtostrf(amp_sens.get_fdata(), 9, 2, amps_string);
 }
 
 void LEDHead::LEDOn(uint8_t _duty_cycle){
