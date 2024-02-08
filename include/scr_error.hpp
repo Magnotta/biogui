@@ -26,7 +26,7 @@ void lbl1_set(){ snprintf(lbl1.text, 25, "Temperatura de seguranca"); }
 void lbl2_set(){ snprintf(lbl2.text, 25, "excedida. Aguarde a"); }
 void lbl3_set(){ snprintf(lbl3.text, 25, "temperatura abaixar e"); }
 void lbl4_set(){ snprintf(lbl4.text, 25, "reinicie o equipamento."); }
-void lbl5_set(){ snprintf(lbl5.text, 25, "Temp LED: %s C", head.temperature_string); }
+void lbl5_set(){ snprintf(lbl5.text, 25, "Temp LED: %s C", head.LED_temperature_string); }
 
 void add_widgets(){
 	error.add_widget(&lbl1);

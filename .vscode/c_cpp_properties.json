@@ -12,6 +12,7 @@
                 "/home/mag/Projects/biogui/src",
                 "/home/mag/Projects/biogui/lib/widget",
                 "/home/mag/Projects/biogui/lib/nav",
+                "/home/mag/Projects/biogui/lib/datalog",
                 "/home/mag/Projects/biogui/lib/head",
                 "/home/mag/Projects/biogui/lib/sensors",
                 "/home/mag/Projects/biogui/.pio/libdeps/biogui/SdFat - Adafruit Fork/src",
@@ -36,6 +37,7 @@
                     "/home/mag/Projects/biogui/src",
                     "/home/mag/Projects/biogui/lib/widget",
                     "/home/mag/Projects/biogui/lib/nav",
+                    "/home/mag/Projects/biogui/lib/datalog",
                     "/home/mag/Projects/biogui/lib/head",
                     "/home/mag/Projects/biogui/lib/sensors",
                     "/home/mag/Projects/biogui/.pio/libdeps/biogui/SdFat - Adafruit Fork/src",
@@ -55,7 +57,7 @@
                 ]
             },
             "defines": [
-                "PLATFORMIO=60111",
+                "PLATFORMIO=60113",
                 "ARDUINO_AVR_MEGA2560",
                 "F_CPU=16000000L",
                 "ARDUINO_ARCH_AVR",

@@ -29,7 +29,7 @@ Label lbl3{30, 90, 2, WHITE, lbl3_set};
 
 void btn1_cb(){
 	sys.goto_screen(&config);
-	head.LEDOff();
+	head.LED_stop();
 }
 
 void tmr1_cb(){
@@ -38,14 +38,14 @@ void tmr1_cb(){
 	if(Config::slider3.get_val()){
 		tmr2.arming_event(Config::slider3.get_val());
 		tmr2.draw(&tft);
-		head.LEDOff();
+		head.LED_stop();
 	}else if(cycles_i < cycles){
 		cycles_i++;
 		tmr1.arming_event(Config::slider2.get_val()*60);
 		tmr1.draw(&tft);
 	}else{
 		sys.goto_screen(&config);
-		head.LEDOff();
+		head.LED_stop();
 	}
 }
 
@@ -57,15 +57,15 @@ void tmr2_cb(){
 		tmr1.arming_event(Config::slider2.get_val()*60);
 		tmr1.activate();
 		tmr1.draw(&tft);
-		head.LEDOn(pwm);
+		head.LED_start(pwm);
 	}else{
 		sys.goto_screen(&config);
-		head.LEDOff();
+		head.LED_stop();
 	}
 }
 
 void lbl1_set(){ snprintf(lbl1.text, 25, "Ciclo %d de %d", cycles_i+1, cycles+1); }
-void lbl2_set(){ snprintf(lbl2.text, 25, "Temp LED: %s C", head.temperature_string); }
+void lbl2_set(){ snprintf(lbl2.text, 25, "Temp LED: %s C", head.LED_temperature_string); }
 void lbl3_set(){ snprintf(lbl3.text, 25, "Corrente: %s A", head.amps_string); }
 
 void add_widgets(){

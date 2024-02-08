@@ -57,7 +57,7 @@ void btn1_cb(){
 	cycles = slider4.get_val() - 1;
 	cycles_i = 0;
 	sys.goto_screen(&play);
-	head.LEDOn(pwm);
+	head.LED_start(pwm);
 }
 
 void add_widgets(){

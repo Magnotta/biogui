@@ -3,6 +3,7 @@
 #include <nav.hpp>
 #include <sensors.hpp>
 #include <head.hpp>
+#include <datalog.hpp>
 #include "scr_config.hpp"
 #include "scr_play.hpp"
 #include "scr_error.hpp"
@@ -20,49 +21,55 @@ TSPoint tp;
 uint16_t ID;
 
 LEDHead head{46, A9, A8, 65.0};
+Logger logger{&head, 47};
+
+
 
 void setup(void){
-  head.init();
-  sys.set_home(&config);
+	head.init();
+	logger.init("pdt660a.bin");
+	sys.set_home(&config);
 
-  delay(100);
+	tft.reset();
+	ID = tft.readID();
+	tft.begin(ID);
+	tft.setRotation(0);   // Portrait orientation
+	tft.fillScreen(BLACK);
 
-  tft.reset();
-  ID = tft.readID();
-  tft.begin(ID);
-  tft.setRotation(0);   // Portrait orientation
-  tft.fillScreen(BLACK);
+	tft.setCursor(51, 465);
+	tft.print("Andre Mariano e Paulo Souza - IF UnB");
 
-  tft.setCursor(51, 465);
-  tft.print("Andre Mariano e Paulo Souza - IF UnB");
+	Config::add_widgets();
+	Play::add_widgets();
+	Error::add_widgets();
 
-  Config::add_widgets();
-  Play::add_widgets();
-  Error::add_widgets();
-
-  sys.enter();
+	sys.enter();
 }
 
 void loop(){
-  uint16_t xpos = 0, ypos = 0;  //screen coordinates
-  tp = ts.getPoint();   //tp.x, tp.y are ADC values
+	uint16_t xpos = 0, ypos = 0;  //screen coordinates
+	tp = ts.getPoint();   //tp.x, tp.y are ADC values
 
-  // if sharing pins, you'll need to fix the directions of the touchscreen pins
-  pinMode(XM, OUTPUT);
-  pinMode(YP, OUTPUT);
+	// if sharing pins, you'll need to fix the directions of the touchscreen pins
+	pinMode(XM, OUTPUT);
+	pinMode(YP, OUTPUT);
 
-  // we have some minimum pressure we consider 'valid'
-  // pressure of 0 means no pressing!
-  if(tp.z > 200 && tp.z < 1000){
-    xpos = map(tp.x, TS_LEFT, TS_RT, 0, tft.width());
-    ypos = map(tp.y, TS_TOP, TS_BOT, 0, tft.height());
-  }
+	// we have some minimum pressure we consider 'valid'
+	// pressure of 0 means no pressing!
+	if(tp.z > 200 && tp.z < 1000){
+		xpos = map(tp.x, TS_LEFT, TS_RT, 0, tft.width());
+		ypos = map(tp.y, TS_TOP, TS_BOT, 0, tft.height());
+	}
 
-  sys.loop(xpos, ypos);
+	sys.loop(xpos, ypos);
 
-  head.update();
-  if(!head.temp_safe()){
-    head.LEDOff();
-    sys.goto_screen(&error);
-  }
+	head.update();
+	if(!head.temp_safe()){
+		head.LED_stop();
+		sys.goto_screen(&error);
+	}
+
+	if(sys.once_per_sec() && head.LED_is_on() && logger.is_active()){
+		logger.log_to_file();
+	}
 }

@@ -34,3 +34,5 @@ Navigating between screens is made easy with this framework.
 ## Router
 
 The router is responsible for _routing screen navigation_. It automatically updates all the widgets on a screen and handles seamless screen transition routines.
+
+cpplint --recursive --filter=-whitespace/tab,-whitespace/braces,-whitespace/comments,-whitespace/indent,-whitespace/line_length,-whitespace/parens ./*
