@@ -20,10 +20,8 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 TSPoint tp;
 uint16_t ID;
 
-LEDHead head{46, A9, A8, 65.0};
+LEDHead head{46, A10, A9, A8, 75.0};
 Logger logger{&head, 47};
-
-
 
 void setup(void){
 	head.init();

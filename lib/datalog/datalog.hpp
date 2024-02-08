@@ -7,8 +7,8 @@
 
 class Logger{
 public:
-	Logger(LEDHead *_head_p, uint8_t _fail_indicator_led_pin, uint8_t _spi_sck_mhz=50, bool _options=DEDICATED_SPI, uint8_t _chip_select_pin=SS);
-	void init(const char* _filename);
+	Logger(LEDHead*, uint8_t, uint8_t=50, bool=DEDICATED_SPI, uint8_t=SS);
+	void init(const char*);
 	bool is_active();
 	void log_to_file();
 
@@ -16,17 +16,17 @@ public:
 	void fail_led_off();
 
 protected:
-	SdFat32 sd;
-	File32 file;
-	char row_buf[30];
-	LEDHead* head_p;
+	SdFat32 _sd;
+	File32 _file;
+	char _row_buf[30];
+	LEDHead* _head_p;
 
-	uint8_t spi_sck_mhz;
-	uint8_t chip_select_pin;
-	uint8_t options;
-	uint8_t fail_indicator_led_pin;
-	bool active;
-	char filename[13];
+	uint8_t _spi_sck_mhz;
+	uint8_t _chip_select_pin;
+	uint8_t _options;
+	uint8_t _fail_indicator_led_pin;
+	bool _active;
+	char _filename[13];
 };
 
 #endif // LIB_DATALOG_DATALOG_HPP_

@@ -10,62 +10,58 @@ extern Router sys;
 /// @brief Initialize a widget
 /// @param x origin x coordinate
 /// @param y origin y coordinate
-Widget::Widget(uint16_t _ox, uint16_t _oy){
-  ox = _ox;
-  oy = _oy;
-  len = 0;
-  wid = 0;
-  cx = 0;
-  cy = 0;
-  system = &sys;
-  active = true;
-  clicking = false;
-  clicker = true; // this default prevents Screen::update from updating invisible widgets
+Widget::Widget(uint16_t ox, uint16_t oy){
+  _ox = ox;
+  _oy = oy;
+  _len = 0;
+  _wid = 0;
+  _cx = 0;
+  _cy = 0;
+  _system = &sys;
+  _active = true;
+  _clicking = false;
+  _clicker = true; // this default prevents Screen::update from updating invisible widgets
 }
 
 /// @brief Check whether the widget is active and was clicked on then update its clicking state
-/// @param _x The x coordinate of the click
-/// @param _y the y coordinate of the click
+/// @param x The x coordinate of the click
+/// @param y the y coordinate of the click
 /// @return True if click is inside active widget area, false otherwise
-bool Widget::clicked(uint16_t _x, uint16_t _y){
-  clicking = _x > ox && _x < ox+len && _y > oy && _y < oy+wid;
-  if(clicking){
-    cx = _x;
-    cy = _y;
+bool Widget::clicked(uint16_t x, uint16_t y){
+  _clicking = x > _ox && x < _ox+_len && y > _oy && y < _oy+_wid;
+  if(_clicking){
+    _cx = x;
+    _cy = y;
   }
-  return clicking;
+  return _clicking;
 }
 
-void Widget::update(MCUFRIEND_kbv *_scr){}
-
-void Widget::draw(MCUFRIEND_kbv *_scr){}
-
-void Widget::erase(MCUFRIEND_kbv *_scr){
-  _scr->fillRect(ox, oy, len, wid, BLACK);
+void Widget::erase(MCUFRIEND_kbv *scr){
+  scr->fillRect(_ox, _oy, _len, _wid, BLACK);
 }
 
 void Widget::activate(){
-  active = true;
+  _active = true;
 }
 
 void Widget::deactivate(){
-  active = false;
+  _active = false;
 }
 
 bool Widget::is_active(){
-  return active;
+  return _active;
 }
 
 bool Widget::is_clicker(){
-  return clicker;
+  return _clicker;
 }
 
 uint16_t Widget::getWid(){
-  return wid;
+  return _wid;
 }
 
 uint16_t Widget::getLen(){
-  return len;
+  return _len;
 }
 
 /*##########################################################################
@@ -79,59 +75,59 @@ uint16_t Widget::getLen(){
 /// @param w Vertixal width of the slider in pixels
 /// @param minv Minimum value the slider should represent
 /// @param maxv Maximum value the slider should represent
-/// @param _step Step size for the slider bar
-/// @param _label Label string
-/// @param _unit Unit string, for example "cm" or "W"
-Slider::Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t _step, const char _label[], const char _unit[])
+/// @param step Step size for the slider bar
+/// @param label Label string
+/// @param unit Unit string, for example "cm" or "W"
+Slider::Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t step, const char label[], const char unit[])
 :Widget(x, y){
-  len = 240;
-  bar_wid = 20;
-  wid = bar_wid+29;
-  min_val = minv;
-  max_val = maxv;
-  step = _step;
-  valx = ox+150;
-  valy = oy+bar_wid+11;
-  val = minv;
-  pos = 0;
-  clicker = true;
+  _len = 240;
+  _bar_wid = 20;
+  _wid = _bar_wid+29;
+  _min_val = minv;
+  _max_val = maxv;
+  _step = step;
+  _valx = _ox+150;
+  _valy = _oy+_bar_wid+11;
+  _val = minv;
+  _pos = 0;
+  _clicker = true;
 
-  if(strlen(_label) < 12)  snprintf(label, 12, "%s", _label);
-  else                  snprintf(label, 12, "error");
+  if(strlen(label) < 12)  snprintf(_label, 12, "%s", label);
+  else                  snprintf(_label, 12, "error");
 
-  if(strlen(_unit) < 4) snprintf(unit, 4, "%s", _unit);
-  else              snprintf(unit, 4, "err");
+  if(strlen(unit) < 4) snprintf(_unit, 4, "%s", unit);
+  else              snprintf(_unit, 4, "err");
 
-  strcat(label, "=");
-  uint8_t len = strlen(label);
-  label_offset = 118 - len*10;
+  strncat(_label, "=", 1);
+  uint8_t len = strlen(_label);
+  _label_offset = 118 - len*10;
 
-  if(min_val < 10)  minv_offset = 8;
-  else              minv_offset = 2;
+  if(_min_val < 10)  _minv_offset = 8;
+  else              _minv_offset = 2;
 
-  if(max_val < 10)        maxv_offset = 2;
-  else if(max_val < 100)  maxv_offset = 8;
-  else                    maxv_offset = 14;
+  if(_max_val < 10)        _maxv_offset = 2;
+  else if(_max_val < 100)  _maxv_offset = 8;
+  else                    _maxv_offset = 14;
 }
 
-bool Slider::clicked(uint16_t _x, uint16_t _y){
-  clicking = _x > ox && _x < ox+len+3 && _y > oy && _y < oy+wid;
-  if(clicking){
-    cx = _x;
-    cy = _y;
+bool Slider::clicked(uint16_t x, uint16_t y){
+  _clicking = x > _ox && x < _ox+_len+3 && y > _oy && y < _oy+_wid;
+  if(_clicking){
+    _cx = x;
+    _cy = y;
   }
-  return clicking;
+  return _clicking;
 }
 
 /// @brief Update slider value and redraw it
 /// @param scr Display screen
 void Slider::update(MCUFRIEND_kbv *scr){
-  if(cx > ox-3 && cx <= ox)              pos = 0;
-  else if(cx >= ox && cx <= ox+len)      pos = cx - ox;
-  else if(cx >= ox+len && cx < ox+len+3) pos = len;
+  if(_cx > _ox-3 && _cx <= _ox)              _pos = 0;
+  else if(_cx >= _ox && _cx <= _ox+_len)      _pos = _cx - _ox;
+  else if(_cx >= _ox+_len && _cx < _ox+_len+3) _pos = _len;
 
-  val = map(pos, 0, len, min_val, max_val);
-  val = val - val % step;
+  _val = map(_pos, 0, _len, _min_val, _max_val);
+  _val = _val - _val % _step;
 
   redraw(scr);
 }
@@ -139,46 +135,46 @@ void Slider::update(MCUFRIEND_kbv *scr){
 // Used internally for better code organization
 void Slider::redraw(MCUFRIEND_kbv *scr){
   scr->setTextSize(2);
-  scr->fillRect(ox, oy, pos, bar_wid, WHITE);
-  scr->fillRect(ox+pos, oy, len-pos, bar_wid, BLACK);
+  scr->fillRect(_ox, _oy, _pos, _bar_wid, WHITE);
+  scr->fillRect(_ox+_pos, _oy, _len-_pos, _bar_wid, BLACK);
 
-  scr->fillRect(valx, valy, ox+len-maxv_offset-valx, 16, BLACK);
-  scr->setCursor(valx, valy);
-  scr->print(val);
-  scr->print(unit);
+  scr->fillRect(_valx, _valy, _ox+_len-_maxv_offset-_valx, 16, BLACK);
+  scr->setCursor(_valx, _valy);
+  scr->print(_val);
+  scr->print(_unit);
 }
 
 /// @brief Draw slider on the display. Calling more than once is redundant
 /// @param scr display screen
 void Slider::draw(MCUFRIEND_kbv *scr){
-  scr->drawRect(ox-3, oy-3, len+6, bar_wid+6, WHITE);
-  scr->fillRect(ox, oy, pos, bar_wid, WHITE);
+  scr->drawRect(_ox-3, _oy-3, _len+6, _bar_wid+6, WHITE);
+  scr->fillRect(_ox, _oy, _pos, _bar_wid, WHITE);
 
   scr->setTextSize(2);
-  scr->setCursor(ox-minv_offset, valy);
-  scr->print(min_val);
-  scr->setCursor(ox+label_offset, valy);
-  scr->print(label);
-  scr->setCursor(valx, valy);
-  scr->print(val);
-  scr->print(unit);
-  scr->setCursor(ox+len-maxv_offset, valy);
-  scr->print(max_val);
+  scr->setCursor(_ox-_minv_offset, _valy);
+  scr->print(_min_val);
+  scr->setCursor(_ox+_label_offset, _valy);
+  scr->print(_label);
+  scr->setCursor(_valx, _valy);
+  scr->print(_val);
+  scr->print(_unit);
+  scr->setCursor(_ox+_len-_maxv_offset, _valy);
+  scr->print(_max_val);
 }
 
 void Slider::erase(MCUFRIEND_kbv *scr){
-  scr->drawRect(ox-3, oy-3, len+6, bar_wid+6, BLACK);
-  scr->fillRect(ox, oy, len, bar_wid, BLACK);
-  scr->fillRect(ox-10, oy+bar_wid+11, len+30, 16, BLACK);
+  scr->drawRect(_ox-3, _oy-3, _len+6, _bar_wid+6, BLACK);
+  scr->fillRect(_ox, _oy, _len, _bar_wid, BLACK);
+  scr->fillRect(_ox-10, _oy+_bar_wid+11, _len+30, 16, BLACK);
 }
 
 void Slider::reset(){
-  val = min_val;
-  pos = 0;
+  _val = _min_val;
+  _pos = 0;
 }
 
 uint16_t Slider::get_val(){
-  return val;
+  return _val;
 }
 
 /*##########################################################################
@@ -188,26 +184,26 @@ uint16_t Slider::get_val(){
 /// @brief Button constructor
 /// @param x Origin (top left corner) x coordinate
 /// @param y Origin (top left corner) y coordinate
-/// @param _label Label to be written inside the button
-/// @param _callback Function pointer to callback function
-Button::Button(uint16_t x, uint16_t y, const char _label[], void (*_callback)(), uint16_t delay)
+/// @param label Label to be written inside the button
+/// @param callback Function pointer to callback function
+Button::Button(uint16_t x, uint16_t y, const char label[], void (*callback)(), uint16_t delay)
 :Widget(x, y){
-  if(strlen(_label) < 10) snprintf(label, 10, "%s", _label);
-  else                    snprintf(label, 10, "error");
+  if(strlen(label) < 10) snprintf(_label, 10, "%s", label);
+  else                    snprintf(_label, 10, "error");
 
-  len = 18*strlen(label) + 7; // -3 from formula, +10 from text displacement
-  wid = 34; // 24 from formula, +10 from text displacement
-  callback = _callback;
-  debounce = delay;
-  clicker = true;
+  _len = 18*strlen(_label) + 7; // -3 from formula, +10 from text displacement
+  _wid = 34; // 24 from formula, +10 from text displacement
+  _callback = callback;
+  _debounce = delay;
+  _clicker = true;
 }
 
 /// @brief Run the callback and debounce
 /// @param scr Display screen
 void Button::update(MCUFRIEND_kbv *scr){
-  if(millis() - mark > debounce){
-    mark = millis();
-    (*callback)();
+  if(millis() - _mark > _debounce){
+    _mark = millis();
+    (*_callback)();
     redraw(scr);
   }
 }
@@ -215,29 +211,29 @@ void Button::update(MCUFRIEND_kbv *scr){
 /// @brief Draw button on the display. Calling more than once is redundant
 /// @param scr Display screen
 void Button::draw(MCUFRIEND_kbv *scr){
-  scr->drawRect(ox, oy, len, wid, WHITE);
-  scr->drawRect(ox+1, oy+1, len-2, wid-2, WHITE);
-  scr->drawRect(ox+2, oy+2, len-4, wid-4, WHITE);
-  scr->setCursor(ox+5, oy+5);
+  scr->drawRect(_ox, _oy, _len, _wid, WHITE);
+  scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, WHITE);
+  scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, WHITE);
+  scr->setCursor(_ox+5, _oy+5);
   scr->setTextSize(3);
-  scr->print(label);
+  scr->print(_label);
 }
 
 void Button::redraw(MCUFRIEND_kbv *scr){
-  scr->fillRect(ox, oy, len, wid, BLACK);
-  if(clicking){
-    scr->drawRect(ox, oy, len, wid, RED);
-    scr->drawRect(ox+1, oy+1, len-2, wid-2, RED);
-    scr->drawRect(ox+2, oy+2, len-4, wid-4, RED);
+  scr->fillRect(_ox, _oy, _len, _wid, BLACK);
+  if(_clicking){
+    scr->drawRect(_ox, _oy, _len, _wid, RED);
+    scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, RED);
+    scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, RED);
     scr->setTextColor(RED);
   }else{
-    scr->drawRect(ox, oy, len, wid, WHITE);
-    scr->drawRect(ox+1, oy+1, len-2, wid-2, WHITE);
-    scr->drawRect(ox+2, oy+2, len-4, wid-4, WHITE);
+    scr->drawRect(_ox, _oy, _len, _wid, WHITE);
+    scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, WHITE);
+    scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, WHITE);
   }
-  scr->setCursor(ox+5, oy+5);
+  scr->setCursor(_ox+5, _oy+5);
   scr->setTextSize(3);
-  scr->print(label);
+  scr->print(_label);
   scr->setTextColor(WHITE);
 }
 
@@ -248,57 +244,57 @@ void Button::redraw(MCUFRIEND_kbv *scr){
 /// @brief Display dynamic text on screen
 /// @param x Origin (top left corner) x coordinate
 /// @param y Origin (top left corner) y coordinate
-/// @param _fontsize Text fontsize in pixels
-/// @param _color Text color
+/// @param fontsize Text fontsize in pixels
+/// @param color Text color
 /// @param setter Function to set the label text, typically a wrapper around an snprintf call (buffer size 25)
-Label::Label(uint16_t x, uint16_t y, uint8_t _fontsize, uint16_t _color, void (*setter)())
+Label::Label(uint16_t x, uint16_t y, uint8_t fontsize, uint16_t color, void (*setter)())
 :Widget(x, y){
-  fontsize = _fontsize;
-  color = _color;
-  set_text = setter;
-  clicker = false;
+  _fontsize = fontsize;
+  _color = color;
+  _set_text = setter;
+  _clicker = false;
 
-  (*set_text)();
+  (*_set_text)();
   byte _l = strlen(text);
 
-  switch(fontsize){
+  switch(_fontsize){
   case 1:
-    len = 6*_l-1;
-    wid = 8;
+    _len = 6*_l-1;
+    _wid = 8;
     break;
   case 2:
-    len = 12*_l-2;
-    wid = 16;
+    _len = 12*_l-2;
+    _wid = 16;
     break;
   case 3:
-    len = 18*_l-3;
-    wid = 24;
+    _len = 18*_l-3;
+    _wid = 24;
     break;
   default:
     snprintf(text, 25, "Error");
-    set_text = nullptr;
-    fontsize = 2;
-    len = 58;
-    wid = 14;
+    _set_text = nullptr;
+    _fontsize = 2;
+    _len = 58;
+    _wid = 14;
   }
 }
 
 void Label::update(MCUFRIEND_kbv *scr){
-  if(system->once_per_sec()){
-    if(set_text != nullptr)
-      (*set_text)();
-    if(strcmp(cmp, text)){
-      snprintf(cmp, 25, "%s", text);
-      len = fontsize * 6 * strlen(text) - fontsize;
+  if(_system->once_per_sec()){
+    if(_set_text != nullptr)
+      (*_set_text)();
+    if(strcmp(_cmp, text)){
+      snprintf(_cmp, 25, "%s", text);
+      _len = _fontsize * 6 * strlen(text) - _fontsize;
       redraw(scr);
     }
   }
 }
 
 void Label::draw(MCUFRIEND_kbv *scr){
-  scr->setCursor(ox, oy);
-  scr->setTextSize(fontsize);
-  scr->setTextColor(color);
+  scr->setCursor(_ox, _oy);
+  scr->setTextSize(_fontsize);
+  scr->setTextColor(_color);
   scr->print(text);
   scr->setTextColor(WHITE);
 }
@@ -315,24 +311,24 @@ void Label::redraw(MCUFRIEND_kbv *scr){
 /// @brief Initialize a timer
 /// @param x origin x coordinate
 /// @param y origin y coordinate
-Timer::Timer(uint16_t x, uint16_t y, void (*_callback)())
+Timer::Timer(uint16_t x, uint16_t y, void (*callback)())
 :Widget(x, y){
-  wid = 28;
-  len = 188;
+  _wid = 28;
+  _len = 188;
   len2dig = 44;
-  mx = ox + 72;
+  mx = _ox + 72;
   sx = mx + 72;
-  callback = _callback;
-  clicker = false;
+  _callback = callback;
+  _clicker = false;
 }
 
 /// @brief Decrease timer seconds and update the display. When zero is reached, run the callback function
 /// @param scr display screen
 void Timer::update(MCUFRIEND_kbv *scr){
-  if(system->once_per_sec()){
+  if(_system->once_per_sec()){
     if(secs)  secs--; 
     if(!secs){
-      (*callback)();
+      (*_callback)();
       return;
     }
 
@@ -342,10 +338,10 @@ void Timer::update(MCUFRIEND_kbv *scr){
 
 // Used internally for better code organization
 void Timer::redraw(MCUFRIEND_kbv *scr){
-  scr->fillRect(ox, oy, len2dig, wid, BLACK);
-  scr->fillRect(mx, oy, len2dig, wid, BLACK);
-  scr->fillRect(sx, oy, len2dig, wid, BLACK);
-  scr->setCursor(ox, oy);
+  scr->fillRect(_ox, _oy, len2dig, _wid, BLACK);
+  scr->fillRect(mx, _oy, len2dig, _wid, BLACK);
+  scr->fillRect(sx, _oy, len2dig, _wid, BLACK);
+  scr->setCursor(_ox, _oy);
   scr->setTextSize(4);
   scr->setTextColor(RED);
   char aux[10];
@@ -376,7 +372,7 @@ void Timer::hhmmss(char* buf){
 /// @brief Draw timer to display. Calling more than once is redundant
 /// @param scr Display screen
 void Timer::draw(MCUFRIEND_kbv *scr){
-  scr->setCursor(ox, oy);
+  scr->setCursor(_ox, _oy);
   scr->setTextSize(4);
   scr->setTextColor(RED);
   char aux[10];
@@ -399,29 +395,29 @@ void Timer::arming_event(uint16_t t){
 /// @brief Constructor for Navigation Button
 /// @param x Origin (top left corner) x coordinate
 /// @param y Origin (top left corner) y coordinate
-/// @param _label Label to be written inside the button
-/// @param _dest Pointer to the destination screen
-NaviButton::NaviButton(uint16_t x, uint16_t y, const char *_label, Screen *_dest)
+/// @param label Label to be written inside the button
+/// @param dest Pointer to the destination screen
+NaviButton::NaviButton(uint16_t x, uint16_t y, const char *label, Screen *dest)
 :Widget(x, y){
-  if(strlen(_label) < 10) snprintf(label, 10, "%s", _label);
-  else                    snprintf(label, 10, "error");
+  if(strlen(label) < 10) snprintf(_label, 10, "%s", label);
+  else                    snprintf(_label, 10, "error");
 
-  len = 18*strlen(label) + 7; // -3 from formula, +10 from text displacement
-  wid = 34; // 24 from formula, +10 from text displacement
-  clicker = true;
+  _len = 18*strlen(label) + 7; // -3 from formula, +10 from text displacement
+  _wid = 34; // 24 from formula, +10 from text displacement
+  _clicker = true;
 }
 
 /// @brief Jump to pointed screen
 /// @param scr Display screen
 void NaviButton::update(MCUFRIEND_kbv *scr){
-  system->goto_screen(dest);
+  _system->goto_screen(_dest);
 }
 
 void NaviButton::draw(MCUFRIEND_kbv *scr){
-  scr->drawRect(ox, oy, len, wid, WHITE);
-  scr->drawRect(ox+1, oy+1, len-2, wid-2, WHITE);
-  scr->drawRect(ox+2, oy+2, len-4, wid-4, WHITE);
-  scr->setCursor(ox+5, oy+5);
+  scr->drawRect(_ox, _oy, _len, _wid, WHITE);
+  scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, WHITE);
+  scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, WHITE);
+  scr->setCursor(_ox+5, _oy+5);
   scr->setTextSize(3);
-  scr->print(label);
+  scr->print(_label);
 }

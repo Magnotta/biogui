@@ -18,11 +18,11 @@
 
 class Widget{
 public:
-    Widget(uint16_t _ox, uint16_t _oy);
-    virtual bool clicked(uint16_t _xpos, uint16_t _ypos);
-    virtual void update(MCUFRIEND_kbv *_scr);
-    virtual void draw(MCUFRIEND_kbv *_scr);
-    virtual void erase(MCUFRIEND_kbv *_scr);
+    Widget(uint16_t, uint16_t);
+    virtual bool clicked(uint16_t, uint16_t);
+    virtual void update(MCUFRIEND_kbv*);
+    virtual void draw(MCUFRIEND_kbv*);
+    virtual void erase(MCUFRIEND_kbv*);
     virtual void activate();
     virtual void deactivate();
     virtual bool is_active();
@@ -31,87 +31,87 @@ public:
     virtual uint16_t getLen();
 
 protected:
-    uint16_t ox;    // origin x coordinate
-    uint16_t oy;    // origin y coordinate
-    uint16_t len;   // total length of the slider bar in pixels
-    uint16_t wid;   // width of the slider bar in pixels
-    uint16_t cx;    // click x coordinate
-    uint16_t cy;    // click y coordinate
-    bool clicker;
-    bool active;    
-    bool clicking;  // true while the widget is being clicked on
-    Router *system;
+    uint16_t _ox;    // origin x coordinate
+    uint16_t _oy;    // origin y coordinate
+    uint16_t _len;   // total length of the slider bar in pixels
+    uint16_t _wid;   // width of the slider bar in pixels
+    uint16_t _cx;    // click x coordinate
+    uint16_t _cy;    // click y coordinate
+    bool _clicker;
+    bool _active;    
+    bool _clicking;  // true while the widget is being clicked on
+    Router *_system;
 };
 
 class Slider : public Widget{
 public:
-    Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t _step, const char _label[], const char _unit[]);
-    bool clicked(uint16_t _xpos, uint16_t _ypos);
-    void update(MCUFRIEND_kbv *scr);  // updates the value and redraws a slider
-    void draw(MCUFRIEND_kbv *scr);  // initial drawing of slider to screen, should only be called once
-    void erase(MCUFRIEND_kbv *scr);
+    Slider(uint16_t, uint16_t, uint16_t, uint16_t, uint8_t, const char[], const char[]);
+    bool clicked(uint16_t, uint16_t);
+    void update(MCUFRIEND_kbv*);  // updates the value and redraws a slider
+    void draw(MCUFRIEND_kbv*);  // initial drawing of slider to screen, should only be called once
+    void erase(MCUFRIEND_kbv*);
     void reset();
 
     uint16_t get_val(); // returns current value the slider holds
 
 protected:
-    uint16_t pos;           // current position of the slider bar in pixels
-    uint16_t val;           // current value the slider represents
-    uint16_t valx;          // x coord of where to write the current value
-    uint16_t valy;          // y coord of where to write the current value
-    uint16_t min_val;       // minimum value the slider can represent
-    uint16_t max_val;       // maximum value the slider can represent
-    uint8_t minv_offset;       // horizontal offset in pixels of where to write the minimum value
-    uint8_t maxv_offset;       // horizontal offset in pixels of where to write the maximum value
-    uint8_t label_offset;      // horizontal offset in pixels of where to write the slider label
-    uint8_t step;
-    uint8_t bar_wid;           // vertical width of the slider bar in pixels
-    char label[13];         // usually ends with an =
-    char unit[5];           // unit of measurement e.g. "%", "cm", "W/m2"
+    uint16_t _pos;           // current position of the slider bar in pixels
+    uint16_t _val;           // current value the slider represents
+    uint16_t _valx;          // x coord of where to write the current value
+    uint16_t _valy;          // y coord of where to write the current value
+    uint16_t _min_val;       // minimum value the slider can represent
+    uint16_t _max_val;       // maximum value the slider can represent
+    uint8_t _minv_offset;       // horizontal offset in pixels of where to write the minimum value
+    uint8_t _maxv_offset;       // horizontal offset in pixels of where to write the maximum value
+    uint8_t _label_offset;      // horizontal offset in pixels of where to write the slider label
+    uint8_t _step;
+    uint8_t _bar_wid;           // vertical width of the slider bar in pixels
+    char _label[13];         // usually ends with an =
+    char _unit[5];           // unit of measurement e.g. "%", "cm", "W/m2"
 
 private:
-    void redraw(MCUFRIEND_kbv *scr); // used internally for better code organization
+    void redraw(MCUFRIEND_kbv*); // used internally for better code organization
 };
 
 class Button : public Widget{
 public:
-    Button(uint16_t x, uint16_t y, const char *_label, void (*_callback)(), uint16_t delay = 0);
-    void update(MCUFRIEND_kbv *scr);  // executes the callback function
-    void draw(MCUFRIEND_kbv *scr);  // initial drawing of button to screen, should only be called once
+    Button(uint16_t, uint16_t, const char[], void (*)(), uint16_t);
+    void update(MCUFRIEND_kbv *);  // executes the callback function
+    void draw(MCUFRIEND_kbv *);  // initial drawing of button to screen, should only be called once
 
 protected:
-    void redraw(MCUFRIEND_kbv *scr);
+    void redraw(MCUFRIEND_kbv *);
 
-    char label[10];
-    void (*callback)();   // callback function pointer
-    uint16_t debounce;  // debounce delay in milliseconds
-    uint32_t mark; // for debouncing delay
+    char _label[10];
+    void (*_callback)();   // callback function pointer
+    uint16_t _debounce;  // debounce delay in milliseconds
+    uint32_t _mark; // for debouncing delay
 };
 
 class Label : public Widget{
 public:
-    Label(uint16_t x, uint16_t y, uint8_t _fontsize, uint16_t _color, void (*setter)());
-    void update(MCUFRIEND_kbv *scr);
-    void draw(MCUFRIEND_kbv *scr);
+    Label(uint16_t, uint16_t, uint8_t, uint16_t, void (*)());
+    void update(MCUFRIEND_kbv*);
+    void draw(MCUFRIEND_kbv*);
 
     char text[25];
 
 protected:
-    void redraw(MCUFRIEND_kbv *scr);
+    void redraw(MCUFRIEND_kbv*);
 
-    char cmp[25];
-    uint16_t color;
-    uint8_t fontsize;
-    void (*set_text)();
+    char _cmp[25];
+    uint16_t _color;
+    uint8_t _fontsize;
+    void (*_set_text)();
 };
 
 class Timer : public Widget{
 public:
-    Timer(uint16_t x, uint16_t y, void (*_callback)());
-    void update(MCUFRIEND_kbv *scr); // reduces remaining seconds by one and updates display
-    void arming_event(uint16_t t); // set total countdown duration on the timer
-    void hhmmss(char* buf);  // prints remaining time into buffer, formatted (hh:mm:ss)
-    void draw(MCUFRIEND_kbv *scr);  // draws the timer on the screen, should only be called once
+    Timer(uint16_t, uint16_t, void (*)());
+    void update(MCUFRIEND_kbv*); // reduces remaining seconds by one and updates display
+    void arming_event(uint16_t); // set total countdown duration on the timer
+    void hhmmss(char[]);  // prints remaining time into buffer, formatted (hh:mm:ss)
+    void draw(MCUFRIEND_kbv*);  // draws the timer on the screen, should only be called once
 
 protected:
     uint16_t mx;    // minutes x coord
@@ -119,21 +119,21 @@ protected:
     uint16_t len2dig;   // length of each couple of digits
     uint16_t secs;  // countdown duration left in seconds
 
-    void (*callback)();   // callback for when timer reaches 0 seconds
+    void (*_callback)();   // _callback for when timer reaches 0 seconds
 
 private:
-    void redraw(MCUFRIEND_kbv *scr); // used internally for better code organization
+    void redraw(MCUFRIEND_kbv*); // used internally for better code organization
 };
 
 class NaviButton : public Widget{
 public:    
-    NaviButton(uint16_t x, uint16_t y, const char *_label, Screen *_dest);
-    void update(MCUFRIEND_kbv *scr);
-    void draw(MCUFRIEND_kbv *scr);
+    NaviButton(uint16_t, uint16_t, const char*, Screen*);
+    void update(MCUFRIEND_kbv*);
+    void draw(MCUFRIEND_kbv*);
 
 protected:
-    char label[12];
-    Screen *dest;
+    char _label[12];
+    Screen *_dest;
 };
 
 #endif // LIB_WIDGET_WIDGET_HPP_

@@ -5,8 +5,8 @@
 /// @param _entry The function to be called when this screen is loaded
 /// @param _exit The function to be called when this screen is unloaded
 /// @param _update The function to be called in loop while this screen is active
-Screen::Screen(MCUFRIEND_kbv *s){
-	scr = s;
+Screen::Screen(MCUFRIEND_kbv *scr){
+	_scr = scr;
 	widget_count = 0;
 }
 
@@ -17,7 +17,7 @@ void Screen::update(uint16_t x, uint16_t y){
 	for(uint8_t i = 0; i < widget_count; i++){
 		if(widgets[i]->is_active() && (!widgets[i]->is_clicker() || widgets[i]->clicked(x, y)))
 				// Update a widget only if it is active, is not a clicker or has been clicked on
-				widgets[i]->update(scr);
+				widgets[i]->update(_scr);
 	}
 }
 
@@ -32,7 +32,7 @@ void Screen::add_widget(Widget *x){
 void Screen::entry(){
 	for(uint8_t i = 0; i < widget_count; i++){
 		if(widgets[i]->is_active())
-			widgets[i]->draw(scr);
+			widgets[i]->draw(_scr);
 	}
 }
 
@@ -40,7 +40,7 @@ void Screen::entry(){
 void Screen::exit(){
 	for(uint8_t i = 0; i < widget_count; i++){
 		if(widgets[i]->is_active())
-			widgets[i]->erase(scr);
+			widgets[i]->erase(_scr);
 	}
 }
 
@@ -50,34 +50,34 @@ void Screen::exit(){
 
 Router sys{nullptr};
 
-Router::Router(Screen *_home){
-	home = _home;
-	current = _home;
-	next = nullptr;
-	jump_set = false;
-	timestamp = 0;
+Router::Router(Screen *home){
+	_home = home;
+	_current = home;
+	_next = nullptr;
+	_jump_set = false;
+	_timestamp = 0;
 }
 
 /// @brief Sets home screen, to be accessed by the home button
 /// @param _home Pointer to Screen object
-void Router::set_home(Screen *_home){
-	home = _home;
+void Router::set_home(Screen *home){
+	_home = home;
 }
 
 /// @brief Erase current screen, draw another
 /// @param next Pointer to screen object
-void Router::goto_screen(Screen *_next){
-	if(current == _next)
+void Router::goto_screen(Screen *next){
+	if(_current == next)
 		return;
-	next = _next;
-	jump_set = true;
+	_next = next;
+	_jump_set = true;
 }
 
 void Router::jump(){
-	current->exit();
-	current = next;
-	current->entry();
-	jump_set = false;
+	_current->exit();
+	_current = _next;
+	_current->entry();
+	_jump_set = false;
 }
 
 /// @brief Updates all widgets linked to current screen
@@ -85,14 +85,14 @@ void Router::jump(){
 /// @param y Y coordinate of screen click
 /// @note To be called inside arduino lcoop()
 void Router::loop(uint16_t x, uint16_t y){
-	if(millis() - timestamp > 991){ // a little smaller than a sec empirically works best
-		timestamp = millis();
-		once_per_sec_set = true;
+	if(millis() - _timestamp > 991){ // a little smaller than a sec empirically works best
+		_timestamp = millis();
+		_once_per_sec_set = true;
 	}else{
-		once_per_sec_set = false;
+		_once_per_sec_set = false;
 	}	
-	current->update(x, y);
-	if(jump_set)
+	_current->update(x, y);
+	if(_jump_set)
 		jump();
 }
 
@@ -101,12 +101,12 @@ void Router::loop(uint16_t x, uint16_t y){
 void Router::enter(){
 	// load_from_eeprom();
 	signature();
-	home->entry();
-	timestamp = millis();
+	_home->entry();
+	_timestamp = millis();
 }
 
 void Router::signature(){}
 
 bool Router::once_per_sec(){
-	return once_per_sec_set;
+	return _once_per_sec_set;
 }
