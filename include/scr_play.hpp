@@ -29,7 +29,7 @@ Label lbl3{30, 90, 2, WHITE, lbl3_set};
 
 void btn1_cb(){
 	sys.goto_screen(&config);
-	head.LED_stop();
+	head.MOSFET_off();
 }
 
 void tmr1_cb(){
@@ -38,14 +38,14 @@ void tmr1_cb(){
 	if(Config::slider3.get_val()){
 		tmr2.arming_event(Config::slider3.get_val());
 		tmr2.draw(&tft);
-		head.LED_stop();
+		head.MOSFET_off();
 	}else if(cycles_i < cycles){
 		cycles_i++;
 		tmr1.arming_event(Config::slider2.get_val()*60);
 		tmr1.draw(&tft);
 	}else{
 		sys.goto_screen(&config);
-		head.LED_stop();
+		head.MOSFET_off();
 	}
 }
 
@@ -57,10 +57,10 @@ void tmr2_cb(){
 		tmr1.arming_event(Config::slider2.get_val()*60);
 		tmr1.activate();
 		tmr1.draw(&tft);
-		head.LED_start(pwm);
+		head.MOSFET_on(pwm);
 	}else{
 		sys.goto_screen(&config);
-		head.LED_stop();
+		head.MOSFET_off();
 	}
 }
 

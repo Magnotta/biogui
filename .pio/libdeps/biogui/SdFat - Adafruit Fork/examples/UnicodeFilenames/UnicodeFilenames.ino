@@ -5,15 +5,15 @@
 // USE_UTF8_LONG_NAMES must be non-zero in SdFat/src/SdFatCongfig.h
 #if USE_UTF8_LONG_NAMES
 
-#define UTF8_FOLDER u8"😀"
-const char* names[] = {u8"россиянин", u8"très élégant", u8"狗.txt", nullptr};
+#define UTF8_FOLDER (const char *)"😀"
+const char* names[] = {(const char *)"россиянин", (const char *)"très élégant", (const char *)"狗.txt", nullptr};
 
 // Remove files if non-zero.
 #define REMOVE_UTF8_FILES 1
 
 // SD_FAT_TYPE = 0 for SdFat/File as defined in SdFatConfig.h,
 // 1 for FAT16/FAT32, 2 for exFAT, 3 for FAT16/FAT32 and exFAT.
-#define SD_FAT_TYPE 0
+#define SD_FAT_TYPE 1
 
 // SDCARD_SS_PIN is defined for the built-in SD on some boards.
 #ifndef SDCARD_SS_PIN

@@ -57,7 +57,7 @@ void btn1_cb(){
 	cycles = slider4.get_val() - 1;
 	cycles_i = 0;
 	sys.goto_screen(&play);
-	head.LED_start(pwm);
+	head.MOSFET_on(pwm);
 }
 
 void add_widgets(){

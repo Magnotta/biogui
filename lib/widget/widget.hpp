@@ -27,8 +27,8 @@ public:
     virtual void deactivate();
     virtual bool is_active();
     virtual bool is_clicker();
-    virtual uint16_t getWid();
-    virtual uint16_t getLen();
+    virtual uint16_t get_wid();
+    virtual uint16_t get_len();
 
 protected:
     uint16_t _ox;    // origin x coordinate
@@ -73,19 +73,34 @@ private:
     void redraw(MCUFRIEND_kbv*); // used internally for better code organization
 };
 
-class Button : public Widget{
+class ButtonBase : public Widget{
 public:
-    Button(uint16_t, uint16_t, const char[], void (*)(), uint16_t);
-    void update(MCUFRIEND_kbv *);  // executes the callback function
-    void draw(MCUFRIEND_kbv *);  // initial drawing of button to screen, should only be called once
+    ButtonBase(uint16_t, uint16_t, const char[]);
+    void draw(MCUFRIEND_kbv*);  // initial drawing of button to screen, should only be called once
 
 protected:
-    void redraw(MCUFRIEND_kbv *);
+    void redraw(MCUFRIEND_kbv*);
 
     char _label[10];
-    void (*_callback)();   // callback function pointer
+};
+
+class Button : public ButtonBase{
+public:
+	Button(uint16_t, uint16_t, const char[], void (*)(), uint16_t=250);
+	void update(MCUFRIEND_kbv*);
+protected:
+	void (*_callback)();   // callback function pointer
     uint16_t _debounce;  // debounce delay in milliseconds
     uint32_t _mark; // for debouncing delay
+};
+
+class NaviButton : public ButtonBase{
+public:    
+    NaviButton(uint16_t, uint16_t, const char*, Screen*);
+    void update(MCUFRIEND_kbv*);
+
+protected:
+    Screen *_dest;
 };
 
 class Label : public Widget{
@@ -123,17 +138,6 @@ protected:
 
 private:
     void redraw(MCUFRIEND_kbv*); // used internally for better code organization
-};
-
-class NaviButton : public Widget{
-public:    
-    NaviButton(uint16_t, uint16_t, const char*, Screen*);
-    void update(MCUFRIEND_kbv*);
-    void draw(MCUFRIEND_kbv*);
-
-protected:
-    char _label[12];
-    Screen *_dest;
 };
 
 #endif // LIB_WIDGET_WIDGET_HPP_

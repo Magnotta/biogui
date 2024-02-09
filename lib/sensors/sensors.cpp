@@ -6,6 +6,7 @@
 /// @param window_size Median filter window size, can only be 15 or smaller
 Sens::Sens(uint8_t sensor_pin, uint8_t window_size, double conversion_coeff){
 	_sensor_pin = sensor_pin;
+	_conversion_coeff = conversion_coeff;
 	if(window_size > 15)		_median_filter_window_size = 15;
 	else if(window_size < 3)	_median_filter_window_size = 3;
 	else						_median_filter_window_size = window_size;

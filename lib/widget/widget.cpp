@@ -56,11 +56,11 @@ bool Widget::is_clicker(){
   return _clicker;
 }
 
-uint16_t Widget::getWid(){
+uint16_t Widget::get_wid(){
   return _wid;
 }
 
-uint16_t Widget::getLen(){
+uint16_t Widget::get_len(){
   return _len;
 }
 
@@ -79,7 +79,7 @@ uint16_t Widget::getLen(){
 /// @param label Label string
 /// @param unit Unit string, for example "cm" or "W"
 Slider::Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t step, const char label[], const char unit[])
-:Widget(x, y){
+:Widget{x, y}{
   _len = 240;
   _bar_wid = 20;
   _wid = _bar_wid+29;
@@ -178,39 +178,24 @@ uint16_t Slider::get_val(){
 }
 
 /*##########################################################################
-* Button ###################################################################
+* ButtonBase ###############################################################
 ##########################################################################*/
 
-/// @brief Button constructor
+/// @brief ButtonBase constructor
 /// @param x Origin (top left corner) x coordinate
 /// @param y Origin (top left corner) y coordinate
 /// @param label Label to be written inside the button
 /// @param callback Function pointer to callback function
-Button::Button(uint16_t x, uint16_t y, const char label[], void (*callback)(), uint16_t delay)
-:Widget(x, y){
-  if(strlen(label) < 10) snprintf(_label, 10, "%s", label);
-  else                    snprintf(_label, 10, "error");
-
+ButtonBase::ButtonBase(uint16_t x, uint16_t y, const char label[])
+:Widget{x, y}{
   _len = 18*strlen(_label) + 7; // -3 from formula, +10 from text displacement
   _wid = 34; // 24 from formula, +10 from text displacement
-  _callback = callback;
-  _debounce = delay;
   _clicker = true;
-}
-
-/// @brief Run the callback and debounce
-/// @param scr Display screen
-void Button::update(MCUFRIEND_kbv *scr){
-  if(millis() - _mark > _debounce){
-    _mark = millis();
-    (*_callback)();
-    redraw(scr);
-  }
 }
 
 /// @brief Draw button on the display. Calling more than once is redundant
 /// @param scr Display screen
-void Button::draw(MCUFRIEND_kbv *scr){
+void ButtonBase::draw(MCUFRIEND_kbv *scr){
   scr->drawRect(_ox, _oy, _len, _wid, WHITE);
   scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, WHITE);
   scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, WHITE);
@@ -219,7 +204,7 @@ void Button::draw(MCUFRIEND_kbv *scr){
   scr->print(_label);
 }
 
-void Button::redraw(MCUFRIEND_kbv *scr){
+void ButtonBase::redraw(MCUFRIEND_kbv *scr){
   scr->fillRect(_ox, _oy, _len, _wid, BLACK);
   if(_clicking){
     scr->drawRect(_ox, _oy, _len, _wid, RED);
@@ -238,6 +223,45 @@ void Button::redraw(MCUFRIEND_kbv *scr){
 }
 
 /*##########################################################################
+* Button ###################################################################
+##########################################################################*/
+
+Button::Button(uint16_t x, uint16_t y, const char label[], void (*callback)(), uint16_t delay_ms)
+:ButtonBase{x, y, label}{
+	_callback = callback;
+	_debounce = delay_ms;
+}
+
+void Button::update(MCUFRIEND_kbv *scr){
+	if(millis() - _mark > _debounce){
+		_mark = millis();
+		(*_callback)();
+		redraw(scr);
+	}
+}
+
+/*##########################################################################
+* Navibutton ###############################################################
+##########################################################################*/
+
+/// @brief Constructor for Navigation Button
+/// @param x Origin (top left corner) x coordinate
+/// @param y Origin (top left corner) y coordinate
+/// @param label Label to be written inside the button
+/// @param dest Pointer to the destination screen
+NaviButton::NaviButton(uint16_t x, uint16_t y, const char *label, Screen *dest)
+:ButtonBase{x, y, label}{
+	_dest = dest;
+	_clicker = true;
+}
+
+/// @brief Jump to pointed screen
+/// @param scr Display screen
+void NaviButton::update(MCUFRIEND_kbv *scr){
+  _system->goto_screen(_dest);
+}
+
+/*##########################################################################
 * Label ####################################################################
 ##########################################################################*/
 
@@ -248,7 +272,7 @@ void Button::redraw(MCUFRIEND_kbv *scr){
 /// @param color Text color
 /// @param setter Function to set the label text, typically a wrapper around an snprintf call (buffer size 25)
 Label::Label(uint16_t x, uint16_t y, uint8_t fontsize, uint16_t color, void (*setter)())
-:Widget(x, y){
+:Widget{x, y}{
   _fontsize = fontsize;
   _color = color;
   _set_text = setter;
@@ -312,7 +336,7 @@ void Label::redraw(MCUFRIEND_kbv *scr){
 /// @param x origin x coordinate
 /// @param y origin y coordinate
 Timer::Timer(uint16_t x, uint16_t y, void (*callback)())
-:Widget(x, y){
+:Widget{x, y}{
   _wid = 28;
   _len = 188;
   len2dig = 44;
@@ -386,38 +410,4 @@ void Timer::draw(MCUFRIEND_kbv *scr){
 void Timer::arming_event(uint16_t t){
   activate();
   secs = t;
-}
-
-/*##########################################################################
-* Navibutton ###############################################################
-##########################################################################*/
-
-/// @brief Constructor for Navigation Button
-/// @param x Origin (top left corner) x coordinate
-/// @param y Origin (top left corner) y coordinate
-/// @param label Label to be written inside the button
-/// @param dest Pointer to the destination screen
-NaviButton::NaviButton(uint16_t x, uint16_t y, const char *label, Screen *dest)
-:Widget(x, y){
-  if(strlen(label) < 10) snprintf(_label, 10, "%s", label);
-  else                    snprintf(_label, 10, "error");
-
-  _len = 18*strlen(label) + 7; // -3 from formula, +10 from text displacement
-  _wid = 34; // 24 from formula, +10 from text displacement
-  _clicker = true;
-}
-
-/// @brief Jump to pointed screen
-/// @param scr Display screen
-void NaviButton::update(MCUFRIEND_kbv *scr){
-  _system->goto_screen(_dest);
-}
-
-void NaviButton::draw(MCUFRIEND_kbv *scr){
-  scr->drawRect(_ox, _oy, _len, _wid, WHITE);
-  scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, WHITE);
-  scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, WHITE);
-  scr->setCursor(_ox+5, _oy+5);
-  scr->setTextSize(3);
-  scr->print(_label);
 }

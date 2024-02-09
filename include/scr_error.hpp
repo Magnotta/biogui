@@ -17,10 +17,10 @@ void lbl4_set();
 void lbl5_set();
 
 Label lbl1{20, 25, 2, WHITE, lbl1_set};
-Label lbl2{50, 25+lbl1.getWid()+5, 2, WHITE, lbl2_set};
-Label lbl3{37, 25+2*(lbl1.getWid()+5), 2, WHITE, lbl3_set};
-Label lbl4{21, 25+3*(lbl1.getWid()+5), 2, WHITE, lbl4_set};
-Label lbl5{64, 25+4*(lbl1.getWid()+5), 2, WHITE, lbl5_set};
+Label lbl2{50, 25+lbl1.get_wid()+5, 2, WHITE, lbl2_set};
+Label lbl3{37, 25+2*(lbl1.get_wid()+5), 2, WHITE, lbl3_set};
+Label lbl4{21, 25+3*(lbl1.get_wid()+5), 2, WHITE, lbl4_set};
+Label lbl5{64, 25+4*(lbl1.get_wid()+5), 2, WHITE, lbl5_set};
 
 void lbl1_set(){ snprintf(lbl1.text, 25, "Temperatura de seguranca"); }
 void lbl2_set(){ snprintf(lbl2.text, 25, "excedida. Aguarde a"); }

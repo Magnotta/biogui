@@ -38,6 +38,7 @@ void Logger::log_to_file(){
 		fail_led_on();
 		return;
 	}
+	fail_led_off();
 
 	snprintf(_row_buf, 30, "%s, %s, %s\n", _head_p->LED_temperature_string,
 										  _head_p->MOSFET_temperature_string,
@@ -48,4 +49,14 @@ void Logger::log_to_file(){
 	
 	_file.truncate();
 	_file.sync();
+
+	_file.close();
+}
+
+void Logger::fail_led_off(){
+	digitalWrite(_fail_indicator_led_pin, LOW);
+}
+
+void Logger::fail_led_on(){
+	digitalWrite(_fail_indicator_led_pin, HIGH);
 }
