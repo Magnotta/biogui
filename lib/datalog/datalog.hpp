@@ -7,7 +7,13 @@
 
 class Logger{
 public:
-	Logger(LEDHead*, uint8_t, uint8_t=50, bool=DEDICATED_SPI, uint8_t=SS);
+	/// @brief Interface over SPI to a microSD card.
+	/// @param head_p Pointer to the LEDHead object. Needed for access to data from sensors.
+	/// @param fail_indicator_led_pin Arduino GPIO pin connected to the failure indicator LED.
+	/// @param spi_sck_mhz Frequency of the SPI bus communication in MHz. Default is 50.
+	/// @param options SPI options. Default is DEDICATED_SPI.
+	/// @param chip_select_pin Arduino GPIO pin connected to the microSD reader chip select. Default is SS.
+	Logger(LEDHead *head_p, uint8_t fail_indicator_led_pin, uint8_t spi_sck_mhz=50, bool options=DEDICATED_SPI, uint8_t chip_select_pin=SS);
 	void init(const char*);
 	bool is_active();
 	void log_to_file();

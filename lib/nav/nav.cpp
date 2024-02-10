@@ -1,10 +1,5 @@
 #include "nav.hpp"
 
-/// @brief Screen class for displaying a single screen
-/// @param s Display screen
-/// @param _entry The function to be called when this screen is loaded
-/// @param _exit The function to be called when this screen is unloaded
-/// @param _update The function to be called in loop while this screen is active
 Screen::Screen(MCUFRIEND_kbv *scr){
 	_scr = scr;
 	widget_count = 0;
@@ -21,14 +16,14 @@ void Screen::update(uint16_t x, uint16_t y){
 	}
 }
 
-/// @brief Add a widget to a screen, so that it is automatically drawn and updated
-/// @param x Should be the memory address os a global Widget object
+/// @brief Add a widget to a screen, so that it is automatically drawn and updated.
+/// @param x Should be the memory address os a global Widget object.
 void Screen::add_widget(Widget *x){
 	widgets[widget_count] = x;
 	widget_count++;
 }
 
-/// @brief The routine for entering a screen: draws all active widgets
+/// @brief The routine for entering a screen: draws all active widgets.
 void Screen::entry(){
 	for(uint8_t i = 0; i < widget_count; i++){
 		if(widgets[i]->is_active())
@@ -36,7 +31,7 @@ void Screen::entry(){
 	}
 }
 
-/// @brief The routine for exiting a screen: erases all active widgets
+/// @brief The routine for exiting a screen: erases all active widgets.
 void Screen::exit(){
 	for(uint8_t i = 0; i < widget_count; i++){
 		if(widgets[i]->is_active())

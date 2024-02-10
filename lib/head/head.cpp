@@ -1,18 +1,14 @@
 #include "head.hpp"
 #include <Arduino.h>
 
-/// @brief HAL for the device's circuitry
-/// @param power_LED_pin Power LED control pin
-/// @param relay_pin Relay pin
-/// @param MOSFET_temp_sens_pin MOSFET temperature sensor pin
-/// @param temp_sens_pin LED temperature sensor pin
-/// @param amp_sens_pin Electrical current sensor pin
-/// @param shut_off_temp Maximum operating temperature
-LEDHead::LEDHead(uint8_t power_LED_pin, uint8_t relay_pin, uint8_t MOSFET_temp_sens_pin, uint8_t temp_sens_pin, uint8_t amp_sens_pin, double shut_off_temp){
-	_MOSFET_temp_sens = TempSens{MOSFET_temp_sens_pin, 5};
-	_LED_temp_sens = TempSens{temp_sens_pin, 5};
-	_source_amp_sens = AmpSens{amp_sens_pin, 5};
-	_MOSFET_gate_pin = power_LED_pin;
+LEDHead::LEDHead(uint8_t MOSFET_gate_pin, uint8_t relay_pin,
+			uint8_t MOSFET_temp_sens_pin, uint8_t temp_sens_pin, uint8_t amp_sens_pin,
+			uint8_t temp_window_size, double temp_multiplier, uint8_t amps_window_size,
+			double amps_multiplier, double shut_off_temp){
+	_MOSFET_temp_sens = ADCSens{MOSFET_temp_sens_pin, temp_multiplier, temp_window_size};
+	_LED_temp_sens = ADCSens{temp_sens_pin, temp_multiplier, temp_window_size};
+	_source_amp_sens = ADCSens{amp_sens_pin, 3, amps_window_size};
+	_MOSFET_gate_pin = MOSFET_gate_pin;
 	_relay_pin = relay_pin;
 	_pwm = 0;
 	_shut_off_temp = shut_off_temp;
@@ -38,16 +34,16 @@ void LEDHead::init(){
 
 void LEDHead::step(){
 	_LED_temp_sens.update();
-	dtostrf(_LED_temp_sens.get_fdata(), 6, 2, LED_temperature_string);
+	dtostrf(_LED_temp_sens.get_filtered_datum(), 6, 2, LED_temperature_string);
 
 	_MOSFET_temp_sens.update();
-	dtostrf(_MOSFET_temp_sens.get_fdata(), 6, 2, MOSFET_temperature_string);
+	dtostrf(_MOSFET_temp_sens.get_filtered_datum(), 6, 2, MOSFET_temperature_string);
 
 	_source_amp_sens.update();
-	dtostrf(_source_amp_sens.get_fdata(), 6, 2, amps_string);
+	dtostrf(_source_amp_sens.get_filtered_datum(), 6, 2, amps_string);
 
 	if(_LED_on){
-		if(_LED_temp_sens.get_fdata() > _shut_off_temp){
+		if(_LED_temp_sens.get_filtered_datum() > _shut_off_temp){
 			MOSFET_off();
 		}
 	}
@@ -61,8 +57,8 @@ void LEDHead::preheat(uint8_t duty_cycle){
 }
 
 void LEDHead::MOSFET_on(uint8_t duty_cycle){
-	analogWrite(_MOSFET_gate_pin, _pwm);
 	_pwm = duty_cycle;
+	analogWrite(_MOSFET_gate_pin, _pwm);
 	_LED_on = true;
 }
 
@@ -73,7 +69,7 @@ void LEDHead::MOSFET_off(){
 }
 
 bool LEDHead::temp_safe(){
-	return _LED_temp_sens.get_fdata() < _shut_off_temp;
+	return _LED_temp_sens.get_filtered_datum() < _shut_off_temp;
 }
 
 bool LEDHead::LED_is_on(){

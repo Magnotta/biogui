@@ -3,13 +3,17 @@
 
 #include <Arduino.h>
 
-class Sens{
+class ADCSens{
 public:
-	Sens(uint8_t, uint8_t, double);
-	Sens() : Sens{0, 5, 0.0}{};
+	/// @brief Interface for the Arduino ADC input pins. It incorporates unit conversion and moving median filtering. 
+	/// @param sensor_pin Arduino ADC pin connected to the sensor's output.
+	/// @param window_size Moving median filter window size. Must be an odd number from 3 to 15 inclusive.
+	/// @param conversion_coeff Conversion multiplier between ADC output (0 ~ 1023) and expected value in given units.
+	ADCSens(uint8_t sensor_pin, uint8_t window_size, double conversion_coeff);
+	ADCSens():ADCSens{0,0.0,3}{};
 	void init();
-	virtual void update();
-	double get_fdata();
+	void update();
+	double get_filtered_datum();
 protected:
 	double get_data();
 	void append(double);
@@ -21,20 +25,6 @@ protected:
 	double _conversion_coeff;
 	double _readings_array[15];
 	double _latest_filtered_datum;
-};
-
-class TempSens : public Sens{
-public:
-	TempSens(uint8_t, uint8_t, double=0.489);
-	TempSens() : TempSens{0, 5}{};
-protected:
-};
-
-class AmpSens : public Sens{
-public:
-	AmpSens(uint8_t, uint8_t, double=0.0264);
-	AmpSens() : AmpSens{0, 5}{};
-protected:
 };
 
 #endif // LIB_SENSORS_SENSORS_HPP_

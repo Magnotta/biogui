@@ -6,7 +6,9 @@
 
 class Screen{
 public:
-	explicit Screen(MCUFRIEND_kbv*);
+	/// @brief A collection of widgets and an automated way to update them.
+	/// @param scr Pointer to the MCUFRIEND_kbv object. Needed for access to function calls for drawing on the display.
+	explicit Screen(MCUFRIEND_kbv *scr);
 	void update(uint16_t, uint16_t);
 	void add_widget(Widget*);
 	void entry();
@@ -20,7 +22,8 @@ protected:
 
 class Router{
 public:
-	explicit Router(Screen*);
+	/// @brief Orchestrates screen transitions and exposes some useful interfaces.
+	explicit Router(Screen *home);
 	void enter();
 	void set_home(Screen*);
 	void goto_screen(Screen*);

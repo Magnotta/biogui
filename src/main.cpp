@@ -8,7 +8,7 @@ byte cmd_i = 0;
 unsigned long timestamp;
 const int sampleT_ms = 1000;
 
-LEDHead head{46, 47, A10, A9, A8, 75.0};
+LEDHead head{46, 47, A10, A9, A8, 5, 0.489, 3, 0.072, 75.0};
 Logger logger{&head, 49};
 
 void clearArray(char*, int);

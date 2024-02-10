@@ -34,7 +34,7 @@ bool Logger::is_active(){
 }
 
 void Logger::log_to_file(){
-	if(!_file.open(_filename, O_WRONLY)){
+	if(!_file.open(_filename, O_WRITE)){
 		fail_led_on();
 		return;
 	}

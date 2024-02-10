@@ -7,9 +7,6 @@
 
 extern Router sys;
 
-/// @brief Initialize a widget
-/// @param x origin x coordinate
-/// @param y origin y coordinate
 Widget::Widget(uint16_t ox, uint16_t oy){
   _ox = ox;
   _oy = oy;
@@ -68,17 +65,7 @@ uint16_t Widget::get_len(){
 * Slider ###################################################################
 ##########################################################################*/
 
-/// @brief Slider constructor
-/// @param x Origin (top left corner) x coordinate
-/// @param y Origin (top left corner) y coordinate
-/// @param l Horizontal length of the slider in pixels
-/// @param w Vertixal width of the slider in pixels
-/// @param minv Minimum value the slider should represent
-/// @param maxv Maximum value the slider should represent
-/// @param step Step size for the slider bar
-/// @param label Label string
-/// @param unit Unit string, for example "cm" or "W"
-Slider::Slider(uint16_t x, uint16_t y, uint16_t minv, uint16_t maxv, uint8_t step, const char label[], const char unit[])
+Slider::Slider(uint16_t x, uint16_t y, const char label[], uint16_t minv, uint16_t maxv, uint8_t step, const char unit[])
 :Widget{x, y}{
   _len = 240;
   _bar_wid = 20;
@@ -244,11 +231,6 @@ void Button::update(MCUFRIEND_kbv *scr){
 * Navibutton ###############################################################
 ##########################################################################*/
 
-/// @brief Constructor for Navigation Button
-/// @param x Origin (top left corner) x coordinate
-/// @param y Origin (top left corner) y coordinate
-/// @param label Label to be written inside the button
-/// @param dest Pointer to the destination screen
 NaviButton::NaviButton(uint16_t x, uint16_t y, const char *label, Screen *dest)
 :ButtonBase{x, y, label}{
 	_dest = dest;
