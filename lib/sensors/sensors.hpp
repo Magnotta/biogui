@@ -10,7 +10,7 @@ public:
 	/// @param window_size Moving median filter window size. Must be an odd number from 3 to 15 inclusive.
 	/// @param conversion_coeff Conversion multiplier between ADC output (0 ~ 1023) and expected value in given units.
 	ADCSens(uint8_t sensor_pin, uint8_t window_size, double conversion_coeff);
-	ADCSens():ADCSens{0,0.0,3}{};
+	ADCSens():ADCSens{0, 3, 0.0}{};
 	void init();
 	void update();
 	double get_filtered_datum();

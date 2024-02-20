@@ -5,9 +5,9 @@ LEDHead::LEDHead(uint8_t MOSFET_gate_pin, uint8_t relay_pin,
 			uint8_t MOSFET_temp_sens_pin, uint8_t temp_sens_pin, uint8_t amp_sens_pin,
 			uint8_t temp_window_size, double temp_multiplier, uint8_t amps_window_size,
 			double amps_multiplier, double shut_off_temp){
-	_MOSFET_temp_sens = ADCSens{MOSFET_temp_sens_pin, temp_multiplier, temp_window_size};
-	_LED_temp_sens = ADCSens{temp_sens_pin, temp_multiplier, temp_window_size};
-	_source_amp_sens = ADCSens{amp_sens_pin, 3, amps_window_size};
+	_MOSFET_temp_sens = ADCSens{MOSFET_temp_sens_pin, temp_window_size, temp_multiplier};
+	_LED_temp_sens = ADCSens{temp_sens_pin, temp_window_size, temp_multiplier};
+	_source_amp_sens = ADCSens{amp_sens_pin, amps_window_size, amps_multiplier};
 	_MOSFET_gate_pin = MOSFET_gate_pin;
 	_relay_pin = relay_pin;
 	_pwm = 0;
