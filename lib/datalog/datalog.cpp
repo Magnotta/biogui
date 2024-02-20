@@ -34,7 +34,7 @@ bool Logger::is_active(){
 }
 
 void Logger::log_to_file(){
-	if(!_file.open(_filename, O_WRONLY | O_CREAT)){
+	if(!_file.open(_filename, O_WRONLY | O_AT_END | O_APPEND | O_CREAT)){
 		fail_led_on();
 		return;
 	}
@@ -47,7 +47,6 @@ void Logger::log_to_file(){
 	while (_sd.card()->isBusy()){}
 	_file.write(_row_buf, 29);
 	
-	_file.truncate();
 	_file.sync();
 
 	_file.close();
