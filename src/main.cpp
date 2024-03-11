@@ -35,22 +35,22 @@ void loop(){
 
 }
 
-void clearArray( char* arr, int len ){
+void clearArray(char* arr, int len){
   for( int i = 0; i < len; i++ ){
     arr[i] = '\0';
   }
 }
 
 void getCmd(){
-  while( Serial.available() > 0 ){
+  while(Serial.available() > 0){
     msgByte = Serial.read();
-    if( msgByte != '\n' ){
+    if(msgByte != '\n'){
       cmdBuff[cmd_i] = msgByte;
       cmd_i++;
     }
     else{
       cmdExe();
-      clearArray( cmdBuff, 10 );
+      clearArray(cmdBuff, 10);
       cmd_i = 0;
     }
   }
@@ -67,16 +67,23 @@ void printData(){
 }
 
 void cmdExe(){
-	uint8_t pwm;
-	switch( cmdBuff[0] ){
+	switch(cmdBuff[0]){
 	case 'd':
-		pwm = atoi(cmdBuff+1);
+		uint8_t pwm = atoi(cmdBuff+1);
 		head.MOSFET_on(pwm);
 		break;
 	case 'r':
 		if(head.relay_is_on())	head.relay_off();
 		else					head.relay_on();
 
+		break;
+	case 's':
+		head.MOSFET_off();
+		delay(15);
+		if(head.relay_is_on())	head.relay_off();
+		else					head.relay_on();
+		delay(35);
+		head.MOSFET_on(255);
 		break;
 	case 'o':
 		head.MOSFET_off();

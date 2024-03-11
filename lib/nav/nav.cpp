@@ -80,7 +80,7 @@ void Router::jump(){
 /// @param y Y coordinate of screen click
 /// @note To be called inside arduino lcoop()
 void Router::loop(uint16_t x, uint16_t y){
-	if(millis() - _timestamp > 991){ // a little smaller than a sec empirically works best
+	if(millis() - _timestamp > 995){ // a little smaller than a sec empirically works best
 		_timestamp = millis();
 		_once_per_sec_set = true;
 	}else{
