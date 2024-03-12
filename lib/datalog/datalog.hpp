@@ -17,6 +17,7 @@ public:
 	void init(const char*);
 	bool is_active();
 	void log_to_file();
+	void stamp_file(const char*);
 
 	void fail_led_on();
 	void fail_led_off();

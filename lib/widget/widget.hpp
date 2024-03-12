@@ -23,8 +23,8 @@ public:
     /// @param oy Origin (top left) y-coordinate in pixels.
     Widget(uint16_t ox, uint16_t oy);
     virtual bool clicked(uint16_t, uint16_t);
-    virtual void update(MCUFRIEND_kbv*);
-    virtual void draw(MCUFRIEND_kbv*);
+    virtual void update(MCUFRIEND_kbv*) = 0;
+    virtual void draw(MCUFRIEND_kbv*) = 0;
     virtual void erase(MCUFRIEND_kbv*);
     virtual void activate();
     virtual void deactivate();
@@ -57,10 +57,10 @@ public:
     /// @param step Step size on the parameter's value. It is helpful when the parameter's value interval is large and fine grained control becomes impossible.
     /// @param unit In what unit is the parameter's value, as a C string.
     Slider(uint16_t x, uint16_t y, const char label[], uint16_t minv, uint16_t maxv, uint8_t step, const char unit[]);
-    bool clicked(uint16_t, uint16_t);
-    void update(MCUFRIEND_kbv*);  // updates the value and redraws a slider
-    void draw(MCUFRIEND_kbv*);  // initial drawing of slider to screen, should only be called once
-    void erase(MCUFRIEND_kbv*);
+    bool clicked(uint16_t, uint16_t) override;
+    void update(MCUFRIEND_kbv*) override;  // updates the value and redraws a slider
+    void draw(MCUFRIEND_kbv*) override;  // initial drawing of slider to screen, should only be called once
+    void erase(MCUFRIEND_kbv*) override;
     void reset();
 
     uint16_t get_val(); // returns current value the slider holds
@@ -91,7 +91,8 @@ public:
     /// @param y Origin (top left) y-coordinate in pixels.
     /// @param label Button label as a C string.
     ButtonBase(uint16_t x, uint16_t y, const char label[]);
-    void draw(MCUFRIEND_kbv*);  // initial drawing of button to screen, should only be called once
+	virtual void update(MCUFRIEND_kbv*) = 0;
+    void draw(MCUFRIEND_kbv*) override;  // initial drawing of button to screen, should only be called once
 
 protected:
     void redraw(MCUFRIEND_kbv*);
@@ -108,7 +109,7 @@ public:
 	/// @param callback Pointer to a void function that's triggered by a button press.
 	/// @param delay_ms Debounce delay in ms.
 	Button(uint16_t x, uint16_t y, const char label[], void (*callback)(), uint16_t delay_ms=250);
-	void update(MCUFRIEND_kbv*);
+	void update(MCUFRIEND_kbv*) override; 
 protected:
 	void (*_callback)();   // callback function pointer
     uint16_t _debounce;  // debounce delay in milliseconds
@@ -123,7 +124,7 @@ public:
     /// @param label Button label as a C string.
     /// @param dest Pointer to the destination screen. 
     NaviButton(uint16_t x, uint16_t y, const char *label, Screen *dest);
-    void update(MCUFRIEND_kbv*);
+    void update(MCUFRIEND_kbv*) override;
 
 protected:
     Screen *_dest;
@@ -138,8 +139,8 @@ public:
     /// @param color 16-bit RGB (5-6-5).
     /// @param setter Pointer to a function that sets the label text. Typically an snprintf call that writes 25 chars to the label.text variable.
     Label(uint16_t x, uint16_t y, uint8_t fontsize, uint16_t color, void (*setter)());
-    void update(MCUFRIEND_kbv*);
-    void draw(MCUFRIEND_kbv*);
+    void update(MCUFRIEND_kbv*) override;
+    void draw(MCUFRIEND_kbv*) override;
 
     char text[25];
 
@@ -159,10 +160,10 @@ public:
     /// @param y Origin (top left) y-coordinate in pixels. 
     /// @param callback Pointer to a void function that's triggered when the countdown ends.
     Timer(uint16_t x, uint16_t y, void (*callback)());
-    void update(MCUFRIEND_kbv*); // reduces remaining seconds by one and updates display
+    void update(MCUFRIEND_kbv*) override; // reduces remaining seconds by one and updates display
+    void draw(MCUFRIEND_kbv*) override;  // draws the timer on the screen, should only be called once
     void arming_event(uint16_t); // set total countdown duration on the timer
-    void hhmmss(char[]);  // prints remaining time into buffer, formatted (hh:mm:ss)
-    void draw(MCUFRIEND_kbv*);  // draws the timer on the screen, should only be called once
+    void hhmmss(char*);  // prints remaining time into buffer, formatted (hh:mm:ss)
 
 protected:
     uint16_t mx;    // minutes x coord

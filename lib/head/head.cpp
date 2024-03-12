@@ -13,7 +13,7 @@ LEDHead::LEDHead(uint8_t MOSFET_gate_pin, uint8_t relay_pin,
 	_pwm = 0;
 	_shut_off_temp = shut_off_temp;
 
-	_LED_on = false;
+	_MOSFET_on = false;
 	_preheat_on = false;
 	_relay_on = false;
 
@@ -42,30 +42,31 @@ void LEDHead::step(){
 	_source_amp_sens.update();
 	dtostrf(_source_amp_sens.get_filtered_datum(), 6, 2, amps_string);
 
-	if(_LED_on){
+	if(_MOSFET_on){
 		if(_LED_temp_sens.get_filtered_datum() > _shut_off_temp){
 			MOSFET_off();
 		}
 	}
 }
 
-void LEDHead::preheat(uint8_t duty_cycle){
-	_pwm = duty_cycle;
-	_preheat_on = true;
-	delay(25);
-	analogWrite(_MOSFET_gate_pin, _pwm);
+void LEDHead::switch_relay(){
+	MOSFET_off();
+	delay(1);
+	if(_relay_on)	relay_off();
+	else			relay_on();
+	delay(35);
+	MOSFET_on(_pwm);
 }
 
 void LEDHead::MOSFET_on(uint8_t duty_cycle){
 	_pwm = duty_cycle;
 	analogWrite(_MOSFET_gate_pin, _pwm);
-	_LED_on = true;
+	_MOSFET_on = true;
 }
 
 void LEDHead::MOSFET_off(){
 	digitalWrite(_MOSFET_gate_pin, LOW);
-	_pwm = 0;
-	_LED_on = false;
+	_MOSFET_on = false;
 }
 
 bool LEDHead::temp_safe(){
@@ -73,7 +74,11 @@ bool LEDHead::temp_safe(){
 }
 
 bool LEDHead::LED_is_on(){
-	return _LED_on;
+	return _MOSFET_on && _relay_on;
+}
+
+bool LEDHead::MOSFET_is_on(){
+	return _MOSFET_on;
 }
 
 void LEDHead::append(double val){
@@ -91,8 +96,4 @@ void LEDHead::relay_on(){
 void LEDHead::relay_off(){
 	digitalWrite(_relay_pin, HIGH);
 	_relay_on = false;
-}
-
-bool LEDHead::relay_is_on(){
-	return _relay_on;
 }

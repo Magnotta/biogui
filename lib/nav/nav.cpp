@@ -10,6 +10,8 @@ Screen::Screen(MCUFRIEND_kbv *scr){
 /// @param y Y coordinate of screen click
 void Screen::update(uint16_t x, uint16_t y){
 	for(uint8_t i = 0; i < widget_count; i++){
+		Serial.print("Testing widget ");
+		Serial.println(i);
 		if(widgets[i]->is_active() && (!widgets[i]->is_clicker() || widgets[i]->clicked(x, y)))
 				// Update a widget only if it is active, is not a clicker or has been clicked on
 				widgets[i]->update(_scr);
@@ -17,7 +19,7 @@ void Screen::update(uint16_t x, uint16_t y){
 }
 
 /// @brief Add a widget to a screen, so that it is automatically drawn and updated.
-/// @param x Should be the memory address os a global Widget object.
+/// @param x Should be the memory address of a global Widget object.
 void Screen::add_widget(Widget *x){
 	widgets[widget_count] = x;
 	widget_count++;
@@ -26,6 +28,8 @@ void Screen::add_widget(Widget *x){
 /// @brief The routine for entering a screen: draws all active widgets.
 void Screen::entry(){
 	for(uint8_t i = 0; i < widget_count; i++){
+		Serial.print("Drawing widget ");
+		Serial.println(i);
 		if(widgets[i]->is_active())
 			widgets[i]->draw(_scr);
 	}
@@ -43,7 +47,6 @@ void Screen::exit(){
 * Router ###################################################################
 ##########################################################################*/
 
-Router sys{nullptr};
 
 Router::Router(Screen *home){
 	_home = home;
@@ -96,6 +99,7 @@ void Router::loop(uint16_t x, uint16_t y){
 void Router::enter(){
 	// load_from_eeprom();
 	signature();
+	_current = _home;
 	_home->entry();
 	_timestamp = millis();
 }
@@ -105,3 +109,5 @@ void Router::signature(){}
 bool Router::once_per_sec(){
 	return _once_per_sec_set;
 }
+
+Router sys{nullptr};

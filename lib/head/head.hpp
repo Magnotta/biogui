@@ -21,38 +21,27 @@ public:
 			uint8_t MOSFET_temp_sens_pin, uint8_t temp_sens_pin, uint8_t amp_sens_pin,
 			uint8_t temp_window_size, double temp_multiplier, uint8_t amps_window_size,
 			double amps_multiplier, double shut_off_temp);
-
 	void init();
-
-	
 	void step();
-
-	void preheat(uint8_t duty_cycle);
-
 	/// @brief Send a 1kHz PWM signal to the MOSFET's gate.
-	/// @param duty_cycle 
+	/// @param duty_cycle PWM instantaneous duty cycle as a byte
 	void MOSFET_on(uint8_t duty_cycle);
-
 	void MOSFET_off();
-	
-	void relay_on();
-	
+	void switch_relay();
 	void relay_off();
-	
 	bool temp_safe();
-	
 	bool LED_is_on();
-	
-	bool relay_is_on();
+	bool MOSFET_is_on();
 
 	char LED_temperature_string[7], MOSFET_temperature_string[7];
 	char amps_string[7];
-	uint8_t _pwm;
 protected:
+	void relay_on();
+
 	ADCSens _LED_temp_sens, _MOSFET_temp_sens, _source_amp_sens;
-	uint8_t _MOSFET_gate_pin, _relay_pin;
+	uint8_t _MOSFET_gate_pin, _relay_pin, _pwm;
 	double _shut_off_temp, _preheat_buf[10];
-	bool _LED_on, _preheat_on, _relay_on;
+	bool _MOSFET_on, _preheat_on, _relay_on;
 private:
 	void append(double);
 };
