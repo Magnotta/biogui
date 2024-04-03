@@ -9,7 +9,7 @@
 // Assign human-readable names to some common 16-bit color values:
 #define BLACK   0x0000
 #define BLUE    0x001F
-#define RED     0xF800
+#define RED     0xFBAE
 #define GREEN   0x07E0
 #define CYAN    0x07FF
 #define MAGENTA 0xF81F
@@ -34,6 +34,8 @@ public:
     virtual uint16_t get_len();
 
 protected:
+	virtual void redraw(MCUFRIEND_kbv*) = 0;
+
     uint16_t _ox;    // origin x coordinate
     uint16_t _oy;    // origin y coordinate
     uint16_t _len;   // total length of the slider bar in pixels
@@ -80,8 +82,7 @@ protected:
     char _label[13];         // usually ends with an =
     char _unit[5];           // unit of measurement e.g. "%", "cm", "W/m2"
 
-private:
-    void redraw(MCUFRIEND_kbv*); // used internally for better code organization
+    void redraw(MCUFRIEND_kbv*) override; // used internally for better code organization
 };
 
 class ButtonBase : public Widget{
@@ -95,7 +96,7 @@ public:
     void draw(MCUFRIEND_kbv*) override;  // initial drawing of button to screen, should only be called once
 
 protected:
-    void redraw(MCUFRIEND_kbv*);
+    virtual void redraw(MCUFRIEND_kbv*) override;
 
     char _label[10];
 };
@@ -116,6 +117,18 @@ protected:
     uint32_t _mark; // for debouncing delay
 };
 
+class Toggle : public Button{
+public:
+	Toggle(uint16_t x, uint16_t y, const char label[], void (*callback)());
+	void update(MCUFRIEND_kbv*) override;
+	void draw(MCUFRIEND_kbv*) override;
+	bool toggled();
+protected:
+	void redraw(MCUFRIEND_kbv*) override;
+
+	bool _toggled;
+};
+
 class NaviButton : public ButtonBase{
 public:
     /// @brief Button that triggers a screen transition, aka navigation.
@@ -123,11 +136,11 @@ public:
     /// @param y Origin (top left) y-coordinate in pixels. 
     /// @param label Button label as a C string.
     /// @param dest Pointer to the destination screen. 
-    NaviButton(uint16_t x, uint16_t y, const char *label, Screen *dest);
+    NaviButton(uint16_t x, uint16_t y, const char *label, Page *dest);
     void update(MCUFRIEND_kbv*) override;
 
 protected:
-    Screen *_dest;
+    Page *_dest;
 };
 
 class Label : public Widget{
@@ -145,7 +158,7 @@ public:
     char text[25];
 
 protected:
-    void redraw(MCUFRIEND_kbv*);
+    void redraw(MCUFRIEND_kbv*) override;
 
     char _cmp[25];
     uint16_t _color;
@@ -173,8 +186,7 @@ protected:
 
     void (*_callback)();   // _callback for when timer reaches 0 seconds
 
-private:
-    void redraw(MCUFRIEND_kbv*); // used internally for better code organization
+    void redraw(MCUFRIEND_kbv*) override; // used internally for better code organization
 };
 
 #endif // LIB_WIDGET_WIDGET_HPP_

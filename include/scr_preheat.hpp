@@ -4,21 +4,13 @@
 #include "datalog.hpp"
 
 extern MCUFRIEND_kbv tft;
-extern Screen config, play;
+extern Page config, play;
 extern Router sys;
 extern LEDHead head;
 extern Logger logger;
 extern uint8_t pwm;
 
-namespace Config{
-extern Slider slider2;
-}
-
-namespace Play{
-extern Timer tmr1;
-}
-
-Screen preheat{&tft};
+Page preheat{&tft};
 
 namespace Preheat{
 
@@ -43,7 +35,9 @@ void btn1_cb(){
 void btn2_cb(){
 	sys.goto_screen(&play);
 	logger.stamp_file(";LED start\n");
-	Play::tmr1.arming_event(Config::slider2.get_val()*60);
+	Play::btn2.deactivate();
+	if(Config::toggle1.toggled())	Play::tmr1.arming_event(Config::slider4.get_val());
+	else							Play::tmr1.arming_event(Config::slider2.get_val()*60);
 	head.switch_relay();
 }
 

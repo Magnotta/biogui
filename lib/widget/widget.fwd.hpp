@@ -4,6 +4,7 @@ class Widget;
 class Slider;
 class ButtonBase;
 class Button;
+class Toggle;
 class NaviButton;
 class Label;
 class Timer;

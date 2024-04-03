@@ -197,10 +197,10 @@ void ButtonBase::draw(MCUFRIEND_kbv *scr){
 void ButtonBase::redraw(MCUFRIEND_kbv *scr){
 	scr->fillRect(_ox, _oy, _len, _wid, BLACK);
 	if(_clicking){
-		scr->drawRect(_ox, _oy, _len, _wid, RED);
-		scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, RED);
-		scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, RED);
-		scr->setTextColor(RED);
+		scr->drawRect(_ox, _oy, _len, _wid, 0xfbae);
+		scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, 0xfbae);
+		scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, 0xfbae);
+		scr->setTextColor(0xfbae);
 	}else{
 		scr->drawRect(_ox, _oy, _len, _wid, WHITE);
 		scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, WHITE);
@@ -226,15 +226,76 @@ void Button::update(MCUFRIEND_kbv *scr){
 	if(millis() - _mark > _debounce){
 		_mark = millis();
 		(*_callback)();
+		if(_active)	redraw(scr);
+	}
+}
+
+/*##########################################################################
+* Toggle ###################################################################
+##########################################################################*/
+
+Toggle::Toggle(uint16_t x, uint16_t y, const char label[], void (*callback)())
+:Button{x, y, label, callback}{
+	_toggled = false;
+}
+
+void Toggle::update(MCUFRIEND_kbv *scr){
+	if(millis() - _mark > _debounce){
+		_mark = millis();
+		_toggled = !_toggled;
+		if(_callback != nullptr)	(*_callback)();
 		redraw(scr);
 	}
+}
+
+void Toggle::draw(MCUFRIEND_kbv *scr){
+	if(_toggled){
+		scr->drawRect(_ox, _oy, _len, _wid, RED);
+		scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, RED);
+		scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, RED);
+		scr->setCursor(_ox+5, _oy+5);
+		scr->setTextSize(3);
+		scr->setTextColor(RED);
+		scr->print(_label);
+		scr->setTextColor(WHITE);
+	}else{
+		scr->drawRect(_ox, _oy, _len, _wid, WHITE);
+		scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, WHITE);
+		scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, WHITE);
+		scr->setCursor(_ox+5, _oy+5);
+		scr->setTextSize(3);
+		scr->print(_label);
+	}
+}
+
+void Toggle::redraw(MCUFRIEND_kbv *scr){
+	scr->fillRect(_ox, _oy, _len, _wid, BLACK);
+	if(_toggled){
+		scr->drawRect(_ox, _oy, _len, _wid, RED);
+		scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, RED);
+		scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, RED);
+		scr->setTextColor(RED);
+	}else{
+		scr->drawRect(_ox, _oy, _len, _wid, WHITE);
+		scr->drawRect(_ox+1, _oy+1, _len-2, _wid-2, WHITE);
+		scr->drawRect(_ox+2, _oy+2, _len-4, _wid-4, WHITE);
+		scr->setTextColor(WHITE);
+	}
+	scr->setCursor(_ox+5, _oy+5);
+	scr->setTextSize(3);
+	scr->print(_label);
+	scr->setTextColor(WHITE);
+}
+
+bool Toggle::toggled(){
+	return _toggled;
 }
 
 /*##########################################################################
 * Navibutton ###############################################################
 ##########################################################################*/
 
-NaviButton::NaviButton(uint16_t x, uint16_t y, const char *label, Screen *dest)
+NaviButton::NaviButton(uint16_t x, uint16_t y, const char *label, Page *dest)
 :ButtonBase{x, y, label}{
 	_dest = dest;
 }
@@ -334,13 +395,14 @@ Timer::Timer(uint16_t x, uint16_t y, void (*callback)())
 /// @param scr display screen
 void Timer::update(MCUFRIEND_kbv *scr){
 	if(_system->once_per_sec()){
-		if(secs)	secs--; 
+		if(secs > 1)	secs--; 
 		else{
 			(*_callback)();
-			return;
+			_active = false;
 		}
 
-		redraw(scr);
+		if(_active)	redraw(scr);
+		else		erase(scr);
 		}
 }
 
@@ -352,7 +414,7 @@ void Timer::redraw(MCUFRIEND_kbv *scr){
 	scr->setCursor(_ox, _oy);
 	scr->setTextSize(4);
 	scr->setTextColor(RED);
-	char aux[10];
+	char aux[9];
 	hhmmss(aux);
 	scr->print(aux);
 	scr->setTextColor(WHITE);
@@ -369,11 +431,11 @@ void Timer::hhmmss(char* buf){
 	uint8_t hours = remainder % 60;
 
 	if(minutes < 10){
-		if(seconds < 10)  snprintf(buf, 10, "0%d:0%d:0%d", hours, minutes, seconds);
-		else              snprintf(buf, 10, "0%d:0%d:%d", hours, minutes, seconds);
+		if(seconds < 10)  snprintf(buf, 9, "0%d:0%d:0%d", hours, minutes, seconds);
+		else              snprintf(buf, 9, "0%d:0%d:%d", hours, minutes, seconds);
 	}else{
-		if(seconds < 10)  snprintf(buf, 10, "0%d:%d:0%d", hours, minutes, seconds);
-		else              snprintf(buf, 10, "0%d:%d:%d", hours, minutes, seconds);
+		if(seconds < 10)  snprintf(buf, 9, "0%d:%d:0%d", hours, minutes, seconds);
+		else              snprintf(buf, 9, "0%d:%d:%d", hours, minutes, seconds);
 	}
 }
 
@@ -392,6 +454,6 @@ void Timer::draw(MCUFRIEND_kbv *scr){
 /// @brief Activate a timer and set its countdown value
 /// @param t Time span for the countdown in seconds
 void Timer::arming_event(uint16_t t){
-	activate();
+	_active = true;
 	secs = t;
 }

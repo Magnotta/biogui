@@ -6,7 +6,7 @@ extern MCUFRIEND_kbv tft;
 extern Router sys;
 extern LEDHead head;
 
-Screen error{&tft};
+Page error{&tft};
 
 namespace Error{
 
