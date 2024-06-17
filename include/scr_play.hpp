@@ -39,14 +39,14 @@ void btn2_cb(){
 	btn2.erase(&tft);
 	btn2.deactivate();
 	head.switch_relay();
-	if(Config::toggle1.toggled())	tmr1.arming_event(Config::slider4.get_val());
+	if(Config::toggle1.is_toggled())	tmr1.arming_event(Config::slider4.get_val());
 	else							tmr1.arming_event(Config::slider2.get_val()*60);
 	tmr1.draw(&tft);
 }
 
 
 void tmr1_cb(){
-	if(Config::toggle2.toggled()){
+	if(Config::toggle2.is_toggled()){
 		btn2.activate();
 		head.switch_relay();
 		btn2.draw(&tft);

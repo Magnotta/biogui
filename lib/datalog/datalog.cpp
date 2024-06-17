@@ -8,6 +8,7 @@ Logger::Logger(LEDHead *head_p, uint8_t fail_indicator_led_pin, uint8_t spi_sck_
 	_options = options;
 	_chip_select_pin = chip_select_pin;
 	_active = false;
+	_stamp_set = false;
 }
 
 void Logger::init(const char* filename){
@@ -40,27 +41,21 @@ void Logger::log_to_file(){
 	}
 	fail_led_off();
 
-	snprintf(_row_buf, 30, "%s, %s, %s\n", _head_p->LED_temperature_string,
-										  _head_p->MOSFET_temperature_string,
-										  _head_p->amps_string);
+	if(_stamp_set)	snprintf(_row_buf + _buf_idx, 50, "%s, %s, %s\n", _head_p->LED_temperature_string, _head_p->MOSFET_temperature_string, _head_p->amps_string);
+	else			snprintf(_row_buf, 30, "%s, %s, %s\n", _head_p->LED_temperature_string, _head_p->MOSFET_temperature_string, _head_p->amps_string);
+	_stamp_set = false;
+	_buf_idx = 0;
+
 
 	while (_sd.card()->isBusy()){}
-	_file.write(_row_buf, 29);
+	_file.write(_row_buf, 49);
 	_file.sync();
 	_file.close();
 }
 
 void Logger::stamp_file(const char* str){
-	if(!_file.open(_filename, O_WRONLY | O_AT_END | O_APPEND | O_CREAT)){
-		fail_led_on();
-		return;
-	}
-	fail_led_off();
-
-	while (_sd.card()->isBusy()){}
-	_file.write(str, 29);
-	_file.sync();
-	_file.close();
+	_buf_idx = snprintf(_row_buf, 20, str);
+	_stamp_set = true;
 }
 
 void Logger::fail_led_off(){

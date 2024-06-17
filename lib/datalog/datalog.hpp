@@ -25,14 +25,11 @@ public:
 protected:
 	SdFat32 _sd;
 	File32 _file;
-	char _row_buf[30];
+	char _row_buf[50];
 	LEDHead* _head_p;
 
-	uint8_t _spi_sck_mhz;
-	uint8_t _chip_select_pin;
-	uint8_t _options;
-	uint8_t _fail_indicator_led_pin;
-	bool _active;
+	uint8_t _spi_sck_mhz, _chip_select_pin, _options, _fail_indicator_led_pin, _buf_idx;
+	bool _active, _stamp_set;
 	char _filename[13];
 };
 

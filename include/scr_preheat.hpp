@@ -36,7 +36,7 @@ void btn2_cb(){
 	sys.goto_screen(&play);
 	logger.stamp_file(";LED start\n");
 	Play::btn2.deactivate();
-	if(Config::toggle1.toggled())	Play::tmr1.arming_event(Config::slider4.get_val());
+	if(Config::toggle1.is_toggled())	Play::tmr1.arming_event(Config::slider4.get_val());
 	else							Play::tmr1.arming_event(Config::slider2.get_val()*60);
 	head.switch_relay();
 }

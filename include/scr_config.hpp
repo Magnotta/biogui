@@ -62,7 +62,7 @@ void lbl2_set(){
 }
 
 void btn1_cb(){
-	if((slider2.get_val() == 0 && !toggle1.toggled()) || (slider4.get_val() == 0 && toggle1.toggled()))
+	if((slider2.get_val() == 0 && !toggle1.is_toggled()) || (slider4.get_val() == 0 && toggle1.is_toggled()))
 		return;
 	head.relay_off();
 	delay(35);

@@ -119,10 +119,15 @@ protected:
 
 class Toggle : public Button{
 public:
+	/// @brief A button that stores some binary state, usually on-off.
+	/// @param x Origin (top left) x-coordinate in pixels.
+    /// @param y Origin (top left) y-coordinate in pixels. 
+    /// @param label Toggle label as a C string.
+	/// @param callback Pointer to a void function that's triggered on every state change.
 	Toggle(uint16_t x, uint16_t y, const char label[], void (*callback)());
 	void update(MCUFRIEND_kbv*) override;
 	void draw(MCUFRIEND_kbv*) override;
-	bool toggled();
+	bool is_toggled();
 protected:
 	void redraw(MCUFRIEND_kbv*) override;
 

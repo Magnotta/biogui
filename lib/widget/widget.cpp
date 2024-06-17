@@ -287,7 +287,7 @@ void Toggle::redraw(MCUFRIEND_kbv *scr){
 	scr->setTextColor(WHITE);
 }
 
-bool Toggle::toggled(){
+bool Toggle::is_toggled(){
 	return _toggled;
 }
 
