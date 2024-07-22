@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <sensors.hpp>
 #include <head.hpp>
-#include <datalog.hpp>
+#include <max6675.h>
 
 char msgByte, cmdBuff[10];
 byte cmd_i = 0;
@@ -9,7 +9,8 @@ unsigned long timestamp;
 const int sampleT_ms = 1000;
 
 LEDHead head{46, 47, A10, A9, A8, 5, 0.489, 5, 0.00727, 75.0};
-Logger logger{&head, 49};
+
+MAX6675 thermocouple{SCK, SS, MISO};
 
 void clearArray(char*, int);
 void getCmd();
@@ -19,7 +20,6 @@ void cmdExe();
 void setup(void){
 	Serial.begin(115200);
 	head.init();
-	logger.init("pdt660a.bin");
 }
 
 void loop(){
@@ -28,8 +28,6 @@ void loop(){
 	if(millis() - timestamp > sampleT_ms){
 		timestamp = millis();
 		head.step();
-		if(head.LED_is_on() && logger.is_active())
-			logger.log_to_file();
 		printData();
 	}
 
@@ -61,9 +59,7 @@ void printData(){
 	Serial.print(",");
 	Serial.print(head.amps_string);
 	Serial.print(",");
-	Serial.print(head.MOSFET_temperature_string);
-	Serial.print(",");
-	Serial.println(head.LED_temperature_string);
+	Serial.println(thermocouple.readCelsius());
 }
 
 void cmdExe(){
