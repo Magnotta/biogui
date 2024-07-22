@@ -98,7 +98,7 @@ Slider::Slider(uint16_t x, uint16_t y, const char label[], uint16_t minv, uint16
 }
 
 bool Slider::clicked(uint16_t x, uint16_t y){
-	_clicking = x > _ox && x < _ox+_len+3 && y > _oy && y < _oy+_wid;
+	_clicking = x > _ox && x < _ox+_len+3 && y > _oy && y < _oy+_bar_wid;
 	if(_clicking){
 
 		_cx = x;

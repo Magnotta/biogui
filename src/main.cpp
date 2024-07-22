@@ -15,10 +15,13 @@
 
 MCUFRIEND_kbv tft;
 // ALL Touch panels and wiring is DIFFERENT
-// copy-paste results from TouchScreen_Calibr_native.ino
-const char name[] = "ndd2";
-const int XP = 6, XM = A2, YP = A1, YM = 7; //320x480 ID=0x9486
-const int TS_LEFT = 937, TS_RT = 127, TS_TOP = 977, TS_BOT = 141;
+// copy-paste results from MCUFRIEND_kbv/examples/TouchScreen_Calibr_native.ino
+const int XP=8,XM=A2,YP=A3,YM=9; //320x480 ID=0x9486
+const int TS_LEFT=111,TS_RT=927,TS_TOP=962,TS_BOT=95;
+
+// const int XP=8,XM=A2,YP=A3,YM=9; //320x480 ID=0x9486
+// const int TS_LEFT=111,TS_RT=927,TS_TOP=935,TS_BOT=89;
+
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 TSPoint tp;
 uint16_t ID;

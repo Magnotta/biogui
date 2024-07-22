@@ -25,7 +25,7 @@ public:
 protected:
 	SdFat32 _sd;
 	File32 _file;
-	char _row_buf[50];
+	char _row_buf[71];
 	LEDHead* _head_p;
 
 	uint8_t _spi_sck_mhz, _chip_select_pin, _options, _fail_indicator_led_pin, _buf_idx;

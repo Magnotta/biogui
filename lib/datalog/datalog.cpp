@@ -41,7 +41,7 @@ void Logger::log_to_file(){
 	}
 	fail_led_off();
 
-	if(_stamp_set)	snprintf(_row_buf + _buf_idx, 50, "%s, %s, %s\n", _head_p->LED_temperature_string, _head_p->MOSFET_temperature_string, _head_p->amps_string);
+	if(_stamp_set)	snprintf(_row_buf + _buf_idx, 75, "%s, %s, %s\n", _head_p->LED_temperature_string, _head_p->MOSFET_temperature_string, _head_p->amps_string);
 	else			snprintf(_row_buf, 30, "%s, %s, %s\n", _head_p->LED_temperature_string, _head_p->MOSFET_temperature_string, _head_p->amps_string);
 	_stamp_set = false;
 	_buf_idx = 0;
@@ -54,8 +54,8 @@ void Logger::log_to_file(){
 }
 
 void Logger::stamp_file(const char* str){
-	_buf_idx = snprintf(_row_buf, 20, str);
-	_stamp_set = true;
+	_buf_idx = _buf_idx + snprintf(_row_buf, 20, str);
+	_stamp_set =  true;
 }
 
 void Logger::fail_led_off(){
