@@ -3,7 +3,7 @@
 #include <head.hpp>
 #include <max6675.h>
 
-char msgByte, cmdBuff[10];
+char msg_byte, cmd_buff[10];
 byte cmd_i = 0;
 unsigned long timestamp;
 const int sampleT_ms = 1000;
@@ -19,6 +19,7 @@ void cmdExe();
 
 void setup(void){
 	Serial.begin(115200);
+	delay(10);
 	head.init();
 }
 
@@ -41,14 +42,14 @@ void clearArray(char* arr, int len){
 
 void getCmd(){
   while(Serial.available() > 0){
-    msgByte = Serial.read();
-    if(msgByte != '\n'){
-      cmdBuff[cmd_i] = msgByte;
+    msg_byte = Serial.read();
+    if(msg_byte != '\n'){
+      cmd_buff[cmd_i] = msg_byte;
       cmd_i++;
     }
     else{
       cmdExe();
-      clearArray(cmdBuff, 10);
+      clearArray(cmd_buff, 10);
       cmd_i = 0;
     }
   }
@@ -63,15 +64,18 @@ void printData(){
 }
 
 void cmdExe(){
-	switch(cmdBuff[0]){
-	case 'd':
-		uint8_t pwm = atoi(cmdBuff+1);
-		head.MOSFET_on(pwm);
-		break;
+	uint8_t pwm;
+	switch(cmd_buff[0]){
 	case 'r':
 		if(head.relay_is_on())	head.relay_off();
 		else					head.relay_on();
 
+		Serial.println("Relayed");
+		break;
+	case 'd':
+		pwm = atoi(cmd_buff+1);
+		head.MOSFET_on(pwm);
+		Serial.println("drenated");
 		break;
 	case 's':
 		head.MOSFET_off();
