@@ -70,12 +70,10 @@ void cmdExe(){
 		if(head.relay_is_on())	head.relay_off();
 		else					head.relay_on();
 
-		Serial.println("Relayed");
 		break;
 	case 'd':
 		pwm = atoi(cmd_buff+1);
 		head.MOSFET_on(pwm);
-		Serial.println("drenated");
 		break;
 	case 's':
 		head.MOSFET_off();
