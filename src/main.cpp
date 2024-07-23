@@ -67,9 +67,10 @@ void printData(){
 }
 
 void cmdExe(){
+	uint8_t pwm;
 	switch(cmdBuff[0]){
 	case 'd':
-		uint8_t pwm = atoi(cmdBuff+1);
+		pwm = atoi(cmdBuff+1);
 		head.MOSFET_on(pwm);
 		break;
 	case 'r':

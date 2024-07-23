@@ -21,7 +21,6 @@ LEDHead::LEDHead(uint8_t MOSFET_gate_pin, uint8_t relay_pin,
 		_preheat_buf[i] = 0.0;
 	}
 
-	digitalWrite(_relay_pin, HIGH);
 }
 
 void LEDHead::init(){
@@ -30,6 +29,7 @@ void LEDHead::init(){
 	_source_amp_sens.init();
 	pinMode(_MOSFET_gate_pin, OUTPUT);
 	pinMode(_relay_pin, OUTPUT);
+	digitalWrite(_relay_pin, HIGH);
 }
 
 void LEDHead::step(){
