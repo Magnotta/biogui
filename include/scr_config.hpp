@@ -28,10 +28,10 @@ Toggle toggle1{108, 40, "Curto", tgl1_cb};
 Toggle toggle2{90, 95, "Segurar", nullptr};
 Slider slider1{40, 160, "Potencia", 0, 100, 1, "%"};
 Slider slider2{40, 220, "Tempo on", 0, 60, 1, "min"};
-Slider slider3{40, 280, "Distancia", 9, 9, 1, "cm"};
+// Slider slider3{40, 280, "Distancia", 9, 9, 1, "cm"};
 Slider slider4{40, 220, "Tempo on", 0, 30, 1, "s"};
 Label lbl1{26, 346, 2, YELLOW, lbl1_set};
-Label lbl2{26, 365, 2, YELLOW, lbl2_set};
+Label lbl2{70, 365, 2, YELLOW, lbl2_set};
 Button btn1{90, 410, "Iniciar", btn1_cb};
 
 void tgl1_cb(){
@@ -49,16 +49,13 @@ void tgl1_cb(){
 }
 
 void lbl1_set(){
-	double irradiance = 1.2*static_cast<double>(slider1.get_val());
-	char buf[7];
-	snprintf(lbl1.text, 25, "Irrad.= %s mW/cm2", dtostrf(irradiance, 6, 2, buf));
+	snprintf(lbl1.text, 25, "Irrad. a 9cm em mW/cm2");
 }
 
 void lbl2_set(){
-	double irradiance = 1.2*static_cast<double>(slider1.get_val());
-	double fluence = irradiance*static_cast<double>(slider2.get_val())*0.06;
-	char buf[9];
-	snprintf(lbl2.text, 25, "Fluencia= %s J/cm2", dtostrf(fluence, 7, 2, buf));
+	double irradiance = 1.1*static_cast<double>(slider1.get_val());
+	char buf[7];
+	snprintf(lbl2.text, 25, "%s", dtostrf(irradiance, 6, 2, buf));
 }
 
 void btn1_cb(){
@@ -67,7 +64,7 @@ void btn1_cb(){
 	head.relay_off();
 	delay(35);
 	pwm = map(slider1.get_val(), 0, 100, 0, 255);
-	Preheat::tmr1.arming_event(300);
+	Preheat::tmr1.arming_event(120);
 	Preheat::btn2.deactivate();
 	sys.goto_screen(&preheat);
 	logger.stamp_file(";preheat start\n");
@@ -79,7 +76,7 @@ void add_widgets(){
 	config.add_widget(&toggle2);
 	config.add_widget(&slider1);
 	config.add_widget(&slider2);
-	config.add_widget(&slider3);
+	// config.add_widget(&slider3);
 	config.add_widget(&slider4);
 	config.add_widget(&lbl1);
 	config.add_widget(&lbl2);

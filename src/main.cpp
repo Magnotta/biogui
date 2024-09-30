@@ -17,7 +17,8 @@ MCUFRIEND_kbv tft;
 // ALL Touch panels and wiring is DIFFERENT
 // copy-paste results from MCUFRIEND_kbv/examples/TouchScreen_Calibr_native.ino
 const int XP=8,XM=A2,YP=A3,YM=9; //320x480 ID=0x9486
-const int TS_LEFT=111,TS_RT=927,TS_TOP=962,TS_BOT=95;
+const int TS_LEFT=149,TS_RT=923,TS_TOP=954,TS_BOT=90;
+
 
 // const int XP=8,XM=A2,YP=A3,YM=9; //320x480 ID=0x9486
 // const int TS_LEFT=111,TS_RT=927,TS_TOP=935,TS_BOT=89;
@@ -26,7 +27,7 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 TSPoint tp;
 uint16_t ID;
 
-LEDHead head{46, 47, A10, A9, A8, 5, 0.489, 5, 0.00727, 75.0};
+LEDHead head{46, 47, A10, A9, A8, 5, 0.489, 5, 0.003612, 75.0};
 Logger logger{&head, 49};
 
 void setup(void){
